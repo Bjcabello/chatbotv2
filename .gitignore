@@ -1,0 +1,13 @@
+# === BACKEND (Python) ===
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/**/*.pyo
+backend/.env
+backend/.DS_Store
+
+# === FRONTEND (React/Vite) ===
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.DS_Store
