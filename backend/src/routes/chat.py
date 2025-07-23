@@ -16,7 +16,7 @@ def chat(data: Chat):
     restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
     
 
-    contenido_proceso = detectar_proceso(data.pregunta, PROCESSES_CONTEXT)
+    nombre_proceso, contenido_proceso = detectar_proceso(data.pregunta, PROCESSES_CONTEXT)
     fragmentos = buscar_fragmentos_relevantes(data.pregunta)
 
     prompt = construir_prompt(

@@ -5,6 +5,7 @@ backend/**/*.pyc
 backend/**/*.pyo
 backend/.env
 backend/.DS_Store
+backend/chroma_db/
 
 # === FRONTEND (React/Vite) ===
 frontend/node_modules/
