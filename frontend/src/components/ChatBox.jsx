@@ -8,6 +8,14 @@ function ChatBox() {
   const [respuesta, setRespuesta] = useState('');
   const [loading, setLoading] = useState(false);
 
+
+  const handlersubirPdf = async () => {
+    if(!fileUploaded){
+      return alert("no has subido ningun archivo")
+
+    }
+
+  }
   const handleEnviar = async () => {
     if (!usuario || !dni || !tipoUsuario || !pregunta) {
       alert("completa todos los campos");
@@ -87,6 +95,27 @@ function ChatBox() {
               onChange={e => setTipoUsuario(e.target.value)} 
             />
           </div>
+
+          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+            <label className='form-label fw-bold'>subir pdf:</label>
+            <input 
+              type="file" 
+              className='form-control' 
+              value={tipoUsuario} 
+              placeholder='sube un archivo' 
+              style={{ width: "100%" }} 
+              onChange={e => subirPdf(e.target.value)} />
+          </div>
+
+          <div className='text-center'>
+          <button 
+            className='btn btn-outline-primary icon-link-hover' 
+            style={{ width: "40%" }} 
+            onClick={handlersubirPdf} 
+            disabled={loading}>
+            {loading ? '🐌.....' : 'subir pdf'}
+          </button>
+        </div>
         </div>
         <div></div>
         <div className='m-5'>
