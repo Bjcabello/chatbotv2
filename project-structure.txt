@@ -1,0 +1,74 @@
+chatbotv2
+├── backend
+backend
+│   ├── chroma_db
+chroma_db
+│   │   └── chroma.sqlite3
+│   ├── src
+src
+│   │   ├── context
+context
+│   │   │   ├── base
+base
+│   │   │   │   ├── business_logic.md
+│   │   │   │   ├── personality.md
+│   │   │   │   └── restrictions.md
+│   │   │   ├── documents
+documents
+│   │   │   │   ├── Control de Versiones.pdf
+│   │   │   │   ├── Importación de usuarios.pdf
+│   │   │   │   ├── politica de seguridad informatica.pdf
+│   │   │   │   └── Restablecer Contraseña.pdf
+│   │   │   └── processes
+processes
+│   │   │       ├── create_user.md
+│   │   │       ├── remove_user.md
+│   │   │       └── update_user.md
+│   │   ├── models
+models
+│   │   │   └── chat.py
+│   │   ├── routes
+routes
+│   │   │   └── chat.py
+│   │   ├── services
+services
+│   │   │   └── chatbot.py
+│   │   ├── utils
+utils
+│   │   │   ├── chroma.py
+│   │   │   ├── file.py
+│   │   │   └── processes.py
+│   │   ├── config.py
+│   │   ├── load_docs.py
+│   │   └── main.py
+│   ├── .gitignore
+│   ├── requirements.txt
+│   └── run.bat
+├── frontend
+frontend
+│   ├── public
+public
+│   │   └── vite.svg
+│   ├── src
+src
+│   │   ├── assets
+assets
+│   │   │   └── react.svg
+│   │   ├── components
+components
+│   │   │   └── ChatBox.jsx
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   └── vite.config.js
+├── .gitignore
+├── generate_structure.py
+├── project-structure.txt
+└── README.md
