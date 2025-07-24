@@ -1,6 +1,8 @@
 import chromadb
 from chromadb.utils import embedding_functions
 from src.config import CHROMA_COLLECTION
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # Cargar modelo BAAI/bge-m3 como función de embeddings
 bge_m3 = embedding_functions.SentenceTransformerEmbeddingFunction(

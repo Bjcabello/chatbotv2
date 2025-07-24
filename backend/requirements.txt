@@ -4,3 +4,4 @@ requests
 chromadb
 pdfplumber
 sentence-transformers
+langchain
