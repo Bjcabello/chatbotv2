@@ -27,11 +27,9 @@ def indexar_documento(nombre: str, contenido: str):
     collection.add(documents=[contenido], ids=[nombre])
 
 def buscar_fragmentos_relevantes(pregunta: str) -> str:
-    """
-    Busca los fragmentos más relevantes en la colección para una pregunta dada.
-
-    Retorna:
-    - Un string concatenado con los fragmentos más relevantes encontrados.
-    """
-    resultados = collection.query(query_texts=[pregunta], n_results=2)
-    return "\n".join(resultados["documents"][0])
+    resultados = collection.query(
+        query_texts=[pregunta],
+        n_results=3
+    )
+    documentos = resultados.get("documents", [[]])[0]
+    return "\n\n".join(documentos)
