@@ -5,3 +5,5 @@ chromadb
 pdfplumber
 sentence-transformers
 langchain
+langchain-community
+python-multipart

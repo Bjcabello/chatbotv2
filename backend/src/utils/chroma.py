@@ -18,30 +18,25 @@ collection = client.get_or_create_collection(
     embedding_function=bge_m3
 )
 
+# Splitting del contenido en chunks
+def dividir_en_chunks(texto: str, chunk_size=500, chunk_overlap=100):
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap
+    )
+    chunks = splitter.split_text(texto)
+    return chunks
+
+# Indexación del documento
 def indexar_documento(nombre: str, contenido: str):
-    """
-    Agrega el contenido del documento a la colección de Chroma.
+    chunks = dividir_en_chunks(contenido)
 
-    Parámetros:
-    - nombre: ID único del documento (por ejemplo, nombre del archivo).
-    - contenido: Texto plano del documento.
-    """
-    collection.add(documents=[contenido], ids=[nombre])
+    documentos = chunks
+    ids = [f"{nombre}_chunk{i}" for i in range(len(chunks))]
 
-def buscar_fragmentos_relevantes(pregunta: str) -> str:
-    """
-    Busca los fragmentos más relevantes en la colección para una pregunta dada.
+    collection.add(documents=documentos, ids=ids)
 
-    Retorna:
-    - Un string concatenado con los fragmentos más relevantes encontrados.
-    """
-    resultados = collection.query(query_texts=[pregunta], n_results=2)
+# Búsqueda relevante
+def buscar_fragmentos_relevantes(pregunta: str, n_resultados: int = 3) -> str:
+    resultados = collection.query(query_texts=[pregunta], n_results=n_resultados)
     return "\n".join(resultados["documents"][0])
-
-def store_pdf_text(text: str, doc_name: str):
-    chroma = client
-    splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-    chunks = splitter.split_text(text)
-    docs = [Document(page_content=chunk, metadata={"source": doc_name}) for chunk in chunks]
-    chroma.add_documents(docs)
-    # chroma.persist()

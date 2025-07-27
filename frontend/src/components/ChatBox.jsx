@@ -7,7 +7,34 @@ function ChatBox() {
   const [pregunta, setPregunta] = useState('');
   const [respuesta, setRespuesta] = useState('');
   const [loading, setLoading] = useState(false);
+  const [archivoPDF, setArchivoPDF] = useState(null);
 
+
+const handleSubirPDF = async () => {
+  if (!archivoPDF) {
+    alert("Selecciona un archivo PDF primero");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", archivoPDF);
+
+  try {
+    const response = await fetch("http://localhost:8000/upload-pdf", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      alert("Error al subir: " + data.error);
+    } else {
+      alert("✅ " + data.mensaje);
+    }
+  } catch (error) {
+    alert("Error al subir el PDF: " + error.message);
+  }
+};
 
   const handlersubirPdf = async () => {
     if(!fileUploaded){
@@ -96,25 +123,26 @@ function ChatBox() {
             />
           </div>
 
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>subir pdf:</label>
-            <input 
-              type="file" 
-              className='form-control' 
-              value={tipoUsuario} 
-              placeholder='sube un archivo' 
-              style={{ width: "100%" }} 
-              onChange={e => subirPdf(e.target.value)} />
-          </div>
+<div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+  <label className='form-label fw-bold'>Subir PDF:</label>
+  <input 
+    type="file" 
+    accept=".pdf" 
+    className='form-control' 
+    style={{ width: "100%" }} 
+    onChange={e => setArchivoPDF(e.target.files[0])} 
+  />
+  <button 
+    className='btn btn-outline-success mt-2' 
+    style={{ width: "100%" }} 
+    onClick={handleSubirPDF}>
+    Subir PDF
+  </button>
+</div>
+
 
           <div className='text-center'>
-          <button 
-            className='btn btn-outline-primary icon-link-hover' 
-            style={{ width: "40%" }} 
-            onClick={handlersubirPdf} 
-            disabled={loading}>
-            {loading ? '🐌.....' : 'subir pdf'}
-          </button>
+
         </div>
         </div>
         <div></div>
