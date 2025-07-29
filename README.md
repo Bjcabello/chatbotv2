@@ -1,8 +1,8 @@
 entrar al backend crear un venv
-python -m venv .venv
+python -m venv venv
 
 correr el venv
-.venv\Scripts\activate
+venv\Scripts\activate
 
 instalar requirements
 pip install -r requirements.txt

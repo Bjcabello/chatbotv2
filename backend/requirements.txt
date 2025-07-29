@@ -6,4 +6,5 @@ pdfplumber
 sentence-transformers
 langchain
 langchain-community
+langchain-chroma
 python-multipart
