@@ -7,3 +7,8 @@ DOCUMENTS_CONTEXT = BASE_DIR / "context" / "documents"
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
 CHROMA_COLLECTION = "procesos_indexados"
+
+
+CHROMA_DB_PATH = "./chroma_db"
+CHROMA_COLLECTION_NAME = "documentos_pdf"
+EMBEDDING_MODEL_NAME = "BAAI/bge-m3"

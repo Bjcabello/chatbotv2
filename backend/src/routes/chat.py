@@ -5,7 +5,7 @@ from src.utils.file import leer_markdown, leer_pdf
 from src.services.chatbot import construir_prompt, enviar_a_ollama
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
 from src.utils.processes import detectar_proceso
-from src.utils.chroma import buscar_fragmentos_relevantes, indexar_documento
+from src.utils.chroma import indexar_documento, buscar_en_pdfs
 from pathlib import Path
 import shutil
 import uuid
@@ -15,6 +15,18 @@ import os
 router = APIRouter()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+def responder_usuario(pregunta_usuario: str) -> str:
+    # Puedes usar aquí alguna heurística para detectar si la pregunta es sobre un PDF
+    # Por ahora asumimos que TODA pregunta busca en los PDFs
+    fragmentos = buscar_en_pdfs(pregunta_usuario)
+    
+    if not fragmentos:
+        return "No encontré información relevante en los documentos PDF cargados."
+    
+    respuesta_contexto = "\n\n".join(fragmentos)
+    return f"Basado en los documentos cargados, encontré lo siguiente:\n\n{respuesta_contexto}"
+
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...)):

@@ -7,3 +7,6 @@ sentence-transformers
 langchain
 langchain-community
 python-multipart
+unstructured
+pdfminer.six
+langchain-huggingface

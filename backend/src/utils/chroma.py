@@ -1,42 +1,41 @@
-import chromadb
-from chromadb.utils import embedding_functions
-from src.config import CHROMA_COLLECTION
+# src/chroma.py
+
+from langchain.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.docstore.document import Document
-# Cargar modelo BAAI/bge-m3 como función de embeddings
-bge_m3 = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="BAAI/bge-m3"
-)
+from langchain.vectorstores.base import VectorStoreRetriever
 
-# Usa almacenamiento persistente en la carpeta 'chroma_db'
-client = chromadb.PersistentClient(path="./chroma_db")
+from src.config import CHROMA_DB_PATH, CHROMA_COLLECTION_NAME, EMBEDDING_MODEL_NAME
+from src.file_loader import cargar_pdf_como_chunks
 
-# Crear o recuperar la colección usando BGE-M3
-collection = client.get_or_create_collection(
-    name=CHROMA_COLLECTION,
-    embedding_function=bge_m3
-)
+import os
 
-# Splitting del contenido en chunks
-def dividir_en_chunks(texto: str, chunk_size=500, chunk_overlap=100):
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
+# Configurar embeddings con el modelo BAAI/bge-m3
+embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
+
+# Inicializar almacén de vectores persistente
+def get_chroma_vectorstore():
+    return Chroma(
+        collection_name=CHROMA_COLLECTION_NAME,
+        embedding_function=embedding_model,
+        persist_directory=CHROMA_DB_PATH
     )
-    chunks = splitter.split_text(texto)
-    return chunks
 
-# Indexación del documento
-def indexar_documento(nombre: str, contenido: str):
-    chunks = dividir_en_chunks(contenido)
+# Indexar un PDF
+def indexar_pdf(nombre_archivo, ruta_pdf):
+    chunks = cargar_pdf_como_chunks(ruta_pdf)
+    
+    # Agregamos metadatos: nombre del archivo
+    for chunk in chunks:
+        chunk.metadata["origen"] = nombre_archivo
 
-    documentos = chunks
-    ids = [f"{nombre}_chunk{i}" for i in range(len(chunks))]
+    vectorstore = get_chroma_vectorstore()
+    vectorstore.add_documents(chunks)
+    vectorstore.persist()
 
-    collection.add(documents=documentos, ids=ids)
-
-# Búsqueda relevante
-def buscar_fragmentos_relevantes(pregunta: str, n_resultados: int = 3) -> str:
-    resultados = collection.query(query_texts=[pregunta], n_results=n_resultados)
-    return "\n".join(resultados["documents"][0])
+# Buscar fragmentos más relevantes (solo del vector store)
+def buscar_en_pdfs(pregunta: str, k=3) -> list[str]:
+    vectorstore = get_chroma_vectorstore()
+    retriever: VectorStoreRetriever = vectorstore.as_retriever(search_kwargs={"k": k})
+    documentos = retriever.get_relevant_documents(pregunta)
+    return [doc.page_content for doc in documentos]
