@@ -4,3 +4,8 @@ requests
 chromadb
 pdfplumber
 sentence-transformers
+langchain
+langchain-chroma
+langchain-huggingface
+langchain-community
+PyMuPDF
