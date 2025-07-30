@@ -50,7 +50,7 @@ function ChatBox() {
   return (
     <div className='container-fluid bg-light mt-4 bg-blue border border-3  ' style={{ maxWidth: "900px"}} >
       
-        <h3 className='text-center'>ChatBot 🤖 Viadocs</h3>
+        <h3 className='text-center'>ChatBot Viadocs</h3>
         <div className='row justify-content-center mt-5'>
           <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
             <label className='form-label fw-bold'>Nombre del Usuario:</label>
@@ -107,7 +107,7 @@ function ChatBox() {
             style={{ width: "40%" }} 
             onClick={handleEnviar} 
             disabled={loading}>
-            {loading ? '🐌.....' : 'Enviar'}
+            {loading ? 'cargando.....' : 'Enviar'}
           </button>
         </div>
 
