@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from src.models.chat import Chat
-from src.utils.file import leer_markdown
+from src.utils.file import leer_markdown, detectar_proceso
 from src.services.chatbot import construir_prompt, enviar_a_ollama
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
-from src.utils.processes import detectar_proceso
 from src.utils.chroma import buscar_fragmentos_relevantes
 
 router = APIRouter()
