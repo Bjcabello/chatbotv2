@@ -4,15 +4,15 @@ from chromadb.utils import embedding_functions
 import chromadb
 from src.config import CHROMA_COLLECTION
 
-# Cargar modelo BAAI/bge-m3 como función de embeddings
+
 bge_m3 = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name="BAAI/bge-m3"
 )
 
-# Usa almacenamiento persistente en la carpeta 'chroma_db'
+
 client = chromadb.PersistentClient(path="./chroma_db")
 
-# Crear o recuperar la colección usando BGE-M3
+
 collection = client.get_or_create_collection(
     name=CHROMA_COLLECTION,
     embedding_function=bge_m3
@@ -46,14 +46,14 @@ def indexar_documento(nombre: str, contenido: str):
     - nombre: ID base del documento (usado como metadato).
     - contenido: Texto plano del documento.
     """
-    chunks = dividir_en_chunks(contenido)  # Asegúrate de tener esta función correctamente implementada
+    chunks = dividir_en_chunks(contenido)  
     ids = [f"{nombre}-{uuid.uuid4()}" for _ in chunks]
-    metadatas = [{"documento": nombre} for _ in chunks]  # Aseguramos que todos tengan metadatos
+    metadatas = [{"documento": nombre} for _ in chunks]  
 
     collection.add(
         documents=chunks,
         ids=ids,
-        metadatas=metadatas  # <- CLAVE: Siempre debe enviarse esto
+        metadatas=metadatas 
     )
 
     print(f" Documento '{nombre}' indexado con {len(chunks)} fragmentos.")
