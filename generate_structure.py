@@ -10,7 +10,7 @@ def generate_tree(directory, prefix="", output_file=None, ignore_list=None):
     :param ignore_list: Lista de nombres de archivos/carpetas a ignorar.
     """
     if ignore_list is None:
-        ignore_list = ['.git', 'node_modules', '__pycache__', '.vscode', '.venv']
+        ignore_list = ['.git', 'node_modules', '__pycache__', '.vscode', 'venv']
 
     # Obtener el nombre de la carpeta raíz
     root_name = os.path.basename(directory)

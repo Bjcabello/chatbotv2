@@ -59,7 +59,7 @@ def chat(data: Chat):
         data.pregunta,
         personalidad,
         logica,
-        contenido_proceso + "\n\n" + fragmentos,
+        contenido_proceso + "\n\n" + "\n".join(fragmentos), #juntar la lista de string
         restriccion
     )
 

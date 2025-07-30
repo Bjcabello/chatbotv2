@@ -3,6 +3,13 @@ chatbotv2
 backend
 │   ├── chroma_db
 chroma_db
+│   │   ├── 5151b2bc-1637-44f7-9cc1-8850a10c235a
+5151b2bc-1637-44f7-9cc1-8850a10c235a
+│   │   │   ├── data_level0.bin
+│   │   │   ├── header.bin
+│   │   │   ├── index_metadata.pickle
+│   │   │   ├── length.bin
+│   │   │   └── link_lists.bin
 │   │   └── chroma.sqlite3
 │   ├── src
 src
@@ -13,12 +20,6 @@ base
 │   │   │   │   ├── business_logic.md
 │   │   │   │   ├── personality.md
 │   │   │   │   └── restrictions.md
-│   │   │   ├── documents
-documents
-│   │   │   │   ├── Control de Versiones.pdf
-│   │   │   │   ├── Importación de usuarios.pdf
-│   │   │   │   ├── politica de seguridad informatica.pdf
-│   │   │   │   └── Restablecer Contraseña.pdf
 │   │   │   └── processes
 processes
 │   │   │       ├── create_user.md
@@ -41,6 +42,8 @@ utils
 │   │   ├── config.py
 │   │   ├── load_docs.py
 │   │   └── main.py
+│   ├── uploads
+uploads
 │   ├── .gitignore
 │   ├── requirements.txt
 │   └── run.bat
