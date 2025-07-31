@@ -123,22 +123,22 @@ const handleSubirPDF = async () => {
             />
           </div>
 
-<div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-  <label className='form-label fw-bold'>Subir PDF:</label>
-  <input 
-    type="file" 
-    accept=".pdf" 
-    className='form-control' 
-    style={{ width: "100%" }} 
-    onChange={e => setArchivoPDF(e.target.files[0])} 
-  />
-  <button 
-    className='btn btn-outline-success mt-2' 
-    style={{ width: "100%" }} 
-    onClick={handleSubirPDF}>
-    Subir PDF
-  </button>
-</div>
+          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+            <label className='form-label fw-bold'>Subir PDF:</label>
+             <input 
+               type="file" 
+               accept=".pdf" 
+               className='form-control' 
+               style={{ width: "100%" }} 
+               onChange={e => setArchivoPDF(e.target.files[0])} 
+             />
+             <button 
+                className='btn btn-outline-success mt-2' 
+                style={{ width: "100%" }} 
+                onClick={handleSubirPDF}>
+                Subir PDF
+                </button>
+          </div>
 
 
           <div className='text-center'>

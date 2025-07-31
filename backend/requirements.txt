@@ -12,3 +12,4 @@ langchain-huggingface
 transformers 
 torch 
 pymupd
+fastembed

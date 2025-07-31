@@ -23,7 +23,7 @@ def get_chroma_vectorstore():
 
 
 # Splitting del contenido en chunks
-def dividir_en_chunks(texto: str, chunk_size=2000, chunk_overlap=500):
+def dividir_en_chunks(texto: str, chunk_size=3000, chunk_overlap=500):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
@@ -33,18 +33,16 @@ def dividir_en_chunks(texto: str, chunk_size=2000, chunk_overlap=500):
 
 # Indexación del documento
 def indexar_documento(nombre: str, contenido: str):
-    # chunks = dividir_en_chunks(contenido)
-
-    # documentos = chunks
-    # ids = [f"{nombre}_chunk{i}" for i in range(len(chunks))]
-
-    # vectorstore = get_chroma_vectorstore()
-    # vectorstore.add_documents(chunks)
-    # vectorstore.persist()
     chunks = dividir_en_chunks(contenido)
     documentos = [Document(page_content=chunk, metadata={"source": nombre, "chunk_id": f"{nombre}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
     vectorstore = get_chroma_vectorstore()
     vectorstore.add_documents(documentos)
+    mis_pdfs = vectorstore.add_documents(documentos)
+    
+    # for pdf in mis_pdfs.range(dividir_en_chunks()):
+    #     print(pdf)
+    
+    
 
 # Búsqueda relevante
 def buscar_fragmentos_relevantes(pregunta: str, n_results: int = 3) -> str:
@@ -52,5 +50,5 @@ def buscar_fragmentos_relevantes(pregunta: str, n_results: int = 3) -> str:
     retriever: VectorStoreRetriever = vectorstore.as_retriever(search_kwargs={"k": n_results})
     documentos = retriever.invoke(pregunta)
     return [doc.page_content for doc in documentos]
-    # resultados = collection.query(query_texts=[pregunta], n_results=n_resultados)
-    # return "\n".join(resultados["documents"][0])
+
+
