@@ -1,12 +1,45 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import StreamingResponse
 from src.models.chat import Chat
-from src.utils.file import leer_markdown, detectar_proceso
+from src.utils.file import leer_markdown, leer_pdf, detectar_proceso
 from src.services.chatbot import construir_prompt, enviar_a_ollama
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
-from src.utils.chroma import buscar_fragmentos_relevantes
+from src.utils.chroma import buscar_fragmentos_relevantes, indexar_documento
+from pathlib import Path
+import shutil
+import uuid
+import shutil
+import os
 
 router = APIRouter()
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+@router.post("/upload-pdf")
+def upload_pdf(file: UploadFile = File(...)):
+    try:
+        # Guardar el archivo temporalmente
+        ruta_temp = f"./temp_{file.filename}"
+        with open(ruta_temp, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Leer contenido del PDF
+        texto = leer_pdf(ruta_temp)
+        if not texto.strip():
+            os.remove(ruta_temp)
+            return {"error": "El PDF no contiene texto válido."}
+
+        # Indexar en ChromaDB
+        nombre = file.filename
+        indexar_documento(nombre=nombre, contenido=texto)
+
+        # Eliminar archivo temporal
+        os.remove(ruta_temp)
+
+        return {"mensaje": f"{file.filename} subido e indexado correctamente"}
+
+    except Exception as e:
+        return {"error": str(e)}
 
 @router.post("/chat")
 def chat(data: Chat):
@@ -25,7 +58,7 @@ def chat(data: Chat):
         data.pregunta,
         personalidad,
         logica,
-        contenido_proceso + "\n\n" + fragmentos,
+        contenido_proceso + "\n\n" + "\n".join(fragmentos), #juntar la lista de string
         restriccion
     )
 

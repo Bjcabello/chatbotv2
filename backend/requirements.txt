@@ -2,7 +2,6 @@ fastapi
 uvicorn
 requests
 chromadb
-pdfplumber
 sentence-transformers
 langchain
 langchain-chroma
