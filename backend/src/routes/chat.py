@@ -33,7 +33,6 @@ def upload_pdf(file: UploadFile = File(...)):
         # Indexar en ChromaDB
         nombre = file.filename
         indexar_documento(nombre=nombre, contenido=texto)
-     
 
         # Eliminar archivo temporal
         os.remove(ruta_temp)

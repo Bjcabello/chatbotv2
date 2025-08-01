@@ -11,5 +11,7 @@ python-multipart
 langchain-huggingface
 transformers 
 torch 
-pymupd
+# pymupd
 fastembed
+# pip install fastapi  
+#pip install pymupdf
