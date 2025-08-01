@@ -1,4 +1,10 @@
-1. Ir a usuario
-2. Ir a eliminar usuario
-3. Dar click en eliminar usuario
-4. Confirmas si deseas eliminarlo
+[System] Instrucciones para eliminar un usuario del sistema.
+
+[Assistant] Estimado(a), para eliminar una cuenta siga los siguientes pasos:
+
+Ingrese con una cuenta de administrador.
+Vaya a "Gestión de Usuarios".
+Busque el usuario por nombre o correo.
+Haga clic en el ícono de "Eliminar".
+Confirme la operación.
+El sistema archivará al usuario como inactivo permanentemente.

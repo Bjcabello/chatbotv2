@@ -12,3 +12,4 @@ CHROMA_COLLECTION = "procesos_indexados"
 EMBEDDING_MODEL_NAME = "BAAI/bge-m3"
 CHROMA_DB_PATH = "./chroma_db"
 CHROMA_COLLECTION_NAME = "documentos_pdf"
+

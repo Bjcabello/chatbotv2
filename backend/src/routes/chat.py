@@ -17,7 +17,7 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 
-@router.post("/subir-libros-gutenberg")
+@router.post("/gutenberg")
 def subir_libros_gutenberg(inicio: int = 100, fin: int = 200):
     resultados = []
     for libro_id in range(inicio, fin + 1):
