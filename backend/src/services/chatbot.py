@@ -27,7 +27,7 @@ def construir_prompt(usuario, dni, tipo_usuario,  personalidad, logica, contenid
 
 def enviar_a_ollama(prompt: str):
     payload = {
-        "model": "mistral",
+        "model": "llama2",
         "messages": [{"role": "user", "content": prompt}],
         "stream": True
     }

@@ -13,8 +13,8 @@ import shutil
 import os
 
 router = APIRouter()
-# UPLOAD_DIR = Path("uploads")
-# UPLOAD_DIR.mkdir(exist_ok=True)
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...)):
@@ -31,14 +31,19 @@ def upload_pdf(file: UploadFile = File(...)):
             return {"error": "El PDF no contiene texto válido."}
 
         # Indexar en ChromaDB
-        nombre = file.filename
-        indexar_documento(nombre=nombre, contenido=texto)
-
+        # nombre = file.filename
+        # indexar_documento(nombre=nombre, contenido=texto)
+        collection_name = file.filename
+        
+        indexado = indexar_documento(chunks = Document, collection_name = collection_name )
+        
+        
         # Eliminar archivo temporal
         os.remove(ruta_temp)
 
-        return {"mensaje": f"{file.filename} subido e indexado correctamente"}
-
+        # return {"mensaje": f"{file.filename} subido e indexado correctamente"}
+        return indexado
+ 
     except Exception as e:
         return {"error": str(e)}
 

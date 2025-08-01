@@ -6,12 +6,13 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.base import VectorStoreRetriever
 from langchain.docstore.document import Document
+from typing import Optional, List, Dict
+
 # Cargar modelo BAAI/bge-m3 como función de embeddings
 
 
 # Configurar embeddings con el modelo BAAI/bge-m3
 embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
-
 
 # Inicializar almacén de vectores persistente
 def get_chroma_vectorstore():
@@ -21,8 +22,6 @@ def get_chroma_vectorstore():
         persist_directory=CHROMA_DB_PATH
     )
 
-
-# Splitting del contenido en chunks
 def dividir_en_chunks(texto: str, chunk_size=3000, chunk_overlap=500):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
@@ -32,16 +31,34 @@ def dividir_en_chunks(texto: str, chunk_size=3000, chunk_overlap=500):
     return chunks
 
 # Indexación del documento
-def indexar_documento(nombre: str, contenido: str):
-    chunks = dividir_en_chunks(contenido)
-    documentos = [Document(page_content=chunk, metadata={"source": nombre, "chunk_id": f"{nombre}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
-    vectorstore = get_chroma_vectorstore()
-    vectorstore.add_documents(documentos)
-    mis_pdfs = vectorstore.add_documents(documentos)
+# def indexar_documento(nombre: str, contenido: str):
+#     chunks = dividir_en_chunks(contenido)
+#     documentos = [Document(page_content=chunk, metadata={"source": nombre, "chunk_id": f"{nombre}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
+#     vectorstore = get_chroma_vectorstore()
+#     vectorstore.add_documents(documentos)
     
-    # for pdf in mis_pdfs.range(dividir_en_chunks()):
-    #     print(pdf)
-    
+
+def indexar_documento(
+        chunks: list[Document],
+        collection_name: str,
+        ids: Optional[List[str]] = None,
+        metadata: Optional[Dict] = None,
+        ) -> Chroma:
+      # Validate ids length if is not none
+        if ids is not None and len(ids) is not len(chunks):
+            raise ValueError("incorrect ids length")
+
+        # Set metadata in all chunks
+        if metadata:
+            for chunk in chunks:
+                chunk.metadata.update(metadata)
+                
+        return Chroma.from_documents(
+            ids=ids,
+            documents=chunks,
+            embedding_model = embedding_model,
+            collection_name=collection_name,
+        )
     
 
 # Búsqueda relevante
