@@ -10,10 +10,41 @@ import shutil
 import uuid
 import shutil
 import os
+import requests
 
 router = APIRouter()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
+
+
+@router.post("/subir-libros-gutenberg")
+def subir_libros_gutenberg(inicio: int = 100, fin: int = 200):
+    resultados = []
+    for libro_id in range(inicio, fin + 1):
+        url = f"https://www.gutenberg.org/files/{libro_id}/{libro_id}-pdf.pdf"
+        print(f" Descargando: {url}")
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            nombre_archivo = f"libro_{libro_id}.pdf"
+            with open(nombre_archivo, "wb") as f:
+                f.write(response.content)
+
+            try:
+                texto = leer_pdf(nombre_archivo)
+                if texto.strip():
+                    indexar_documento(nombre=f"Libro-{libro_id}", contenido=texto)
+                    resultados.append(f" Libro {libro_id} indexado.")
+                else:
+                    resultados.append(f" Libro {libro_id} no tiene texto válido.")
+            except Exception as e:
+                resultados.append(f" Error procesando {libro_id}: {str(e)}")
+            finally:
+                os.remove(nombre_archivo)
+        else:
+            resultados.append(f" No encontrado (404): {url}")
+    
+    return {"resultado": resultados}
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...)):
@@ -58,7 +89,7 @@ def chat(data: Chat):
         data.pregunta,
         personalidad,
         logica,
-        contenido_proceso + "\n\n" + "\n".join(fragmentos), #juntar la lista de string
+        contenido_proceso + "\n\n" + "\n".join(fragmentos),
         restriccion
     )
 
