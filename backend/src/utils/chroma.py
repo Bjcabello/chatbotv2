@@ -22,7 +22,7 @@ def get_chroma_vectorstore():
         persist_directory=CHROMA_DB_PATH
     )
 
-def dividir_en_chunks(texto: str, chunk_size=3000, chunk_overlap=500):
+def dividir_en_chunks(texto: str, chunk_size=400, chunk_overlap=40):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
@@ -30,12 +30,41 @@ def dividir_en_chunks(texto: str, chunk_size=3000, chunk_overlap=500):
     chunks = splitter.split_text(texto)
     return chunks
 
+import hashlib
+
+def generar_hash(texto: str) -> str:
+    if not isinstance(texto, str):
+        raise ValueError("El input debe ser un string")
+    
+    # Convertir el string a bytes y generar el hash
+    hash_obj = hashlib.sha256(texto.encode('utf-8'))
+    return hash_obj.hexdigest()
+
 # Indexación del documento
 def indexar_documento(nombre: str, contenido: str):
-    chunks = dividir_en_chunks(contenido)
-    documentos = [Document(page_content=chunk, metadata={"source": nombre, "chunk_id": f"{nombre}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
     vectorstore = get_chroma_vectorstore()
-    vectorstore.add_documents(documentos)
+        
+    hash = generar_hash(contenido)
+    
+    find_hash = vectorstore.get(where={"hash": hash})
+    
+    if len(find_hash["documents"]) == 0:
+        chunks = dividir_en_chunks(contenido)
+        documentos = [Document(page_content=chunk, metadata={"source": nombre, "hash": hash, "chunk_id": f"{hash}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
+    
+        import time
+        start_time = time.time()
+    
+        print(f"total chunks: {len(documentos)}")
+    
+        for i in range(0, len(documentos), 32):
+            print(f"processing: {i+32}/{len(documentos)} - {time.time() - start_time}") 
+            vectorstore.add_documents(documentos[i:i+32])
+            print(f"processed: {i+32}/{len(documentos)} - {time.time() - start_time}", end="\r") 
+        
+        print(f"completed - {time.time() - start_time}")
+    else:
+        print("archivo almacenado en chromadb previamente")
     
     
 # Búsqueda relevante

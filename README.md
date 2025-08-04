@@ -7,6 +7,7 @@ venv\Scripts\activate
 instalar requirements
 pip install -r requirements.txt
 
+uvicorn src.main:app --reload
 
 En el Frontend acceder y cd frontend y correr
 npm install

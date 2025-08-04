@@ -16,42 +16,14 @@ router = APIRouter()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
-# @router.post("/upload-pdf")
-# def upload_pdf(file: UploadFile = File(...)):
-#     try:
-#         # Guardar el archivo temporalmente
-#         ruta_temp = f"./temp_{file.filename}"
-#         with open(ruta_temp, "wb") as buffer:
-#             shutil.copyfileobj(file.file, buffer)
-
-#         # Leer contenido del PDF
-#         texto = leer_pdf(ruta_temp)
-#         if not texto.strip():
-#             os.remove(ruta_temp)
-#             return {"error": "El PDF no contiene texto válido."}
-
-#         # Indexar en ChromaDB
-#         nombre = file.filename
-#         indexar_documento(nombre=nombre, contenido=texto)
-#         collection_name = file.filename
-        
-#         # indexado = indexar_documento(chunks = Document, collection_name = collection_name )
-        
-        
-#         # Eliminar archivo temporal
-#         os.remove(ruta_temp)
-
-#         return {"mensaje": f"{file.filename} subido e indexado correctamente"}
-#         # return indexado
-
-#     except Exception as e:
-#         return {"error": str(e)}
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     try:
         # Ruta temporal para guardar el archivo
         ruta_temporal = f"./temp_{file.filename}"
+        
+        print("")
 
         # Guardar el archivo en disco
         with open(ruta_temporal, "wb") as buffer:
@@ -84,22 +56,37 @@ def chat(data: Chat):
     logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
     restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
     
-
-    nombre_proceso, contenido_proceso = detectar_proceso(data.pregunta, PROCESSES_CONTEXT)
-    fragmentos = buscar_fragmentos_relevantes(data.pregunta)
-
-    prompt = construir_prompt(
-        data.usuario,
-        data.dni,
-        data.tipo_usuario,
-        data.pregunta,
-        personalidad,
-        logica,
-        contenido_proceso + "\n\n" + "\n".join(fragmentos), #juntar la lista de string
-        restriccion
+    from langchain.llms.ollama import Ollama
+    
+    llm = Ollama(model="mistral", temperature=0)
+    
+    from src.utils.chroma import get_chroma_vectorstore
+    retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
+    
+    from langchain.chains.retrieval_qa.base import RetrievalQA
+    
+    from langchain.prompts import PromptTemplate
+    
+    prompt = PromptTemplate(
+        template="""  
+            Contexto:
+            {context}
+            
+            Pregunta:
+            {question}
+            
+            Respuesta:
+        """, input_variables=["context", "question"]
     )
-
-    return StreamingResponse(
-        enviar_a_ollama(prompt),
-        media_type="text/plain"
+    
+    retrieval = RetrievalQA.from_chain_type(
+        llm=llm,
+        retriever=retriever,
+        chain_type="stuff",
+        return_source_documents=True,
+        chain_type_kwargs={"prompt": prompt},
     )
+    
+    result = retrieval.invoke({"query": data.pregunta})
+
+    return result
