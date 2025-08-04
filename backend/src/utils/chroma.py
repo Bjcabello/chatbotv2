@@ -31,36 +31,13 @@ def dividir_en_chunks(texto: str, chunk_size=3000, chunk_overlap=500):
     return chunks
 
 # Indexación del documento
-# def indexar_documento(nombre: str, contenido: str):
-#     chunks = dividir_en_chunks(contenido)
-#     documentos = [Document(page_content=chunk, metadata={"source": nombre, "chunk_id": f"{nombre}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
-#     vectorstore = get_chroma_vectorstore()
-#     vectorstore.add_documents(documentos)
+def indexar_documento(nombre: str, contenido: str):
+    chunks = dividir_en_chunks(contenido)
+    documentos = [Document(page_content=chunk, metadata={"source": nombre, "chunk_id": f"{nombre}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
+    vectorstore = get_chroma_vectorstore()
+    vectorstore.add_documents(documentos)
     
-
-def indexar_documento(
-        chunks: list[Document],
-        collection_name: str,
-        ids: Optional[List[str]] = None,
-        metadata: Optional[Dict] = None,
-        ) -> Chroma:
-      # Validate ids length if is not none
-        if ids is not None and len(ids) is not len(chunks):
-            raise ValueError("incorrect ids length")
-
-        # Set metadata in all chunks
-        if metadata:
-            for chunk in chunks:
-                chunk.metadata.update(metadata)
-                
-        return Chroma.from_documents(
-            ids=ids,
-            documents=chunks,
-            embedding_model = embedding_model,
-            collection_name=collection_name,
-        )
     
-
 # Búsqueda relevante
 def buscar_fragmentos_relevantes(pregunta: str, n_results: int = 3) -> str:
     vectorstore = get_chroma_vectorstore()

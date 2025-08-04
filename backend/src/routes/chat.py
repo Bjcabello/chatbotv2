@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from src.models.chat import Chat
 from src.utils.file import leer_markdown, leer_pdf
@@ -16,36 +16,67 @@ router = APIRouter()
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
+# @router.post("/upload-pdf")
+# def upload_pdf(file: UploadFile = File(...)):
+#     try:
+#         # Guardar el archivo temporalmente
+#         ruta_temp = f"./temp_{file.filename}"
+#         with open(ruta_temp, "wb") as buffer:
+#             shutil.copyfileobj(file.file, buffer)
+
+#         # Leer contenido del PDF
+#         texto = leer_pdf(ruta_temp)
+#         if not texto.strip():
+#             os.remove(ruta_temp)
+#             return {"error": "El PDF no contiene texto válido."}
+
+#         # Indexar en ChromaDB
+#         nombre = file.filename
+#         indexar_documento(nombre=nombre, contenido=texto)
+#         collection_name = file.filename
+        
+#         # indexado = indexar_documento(chunks = Document, collection_name = collection_name )
+        
+        
+#         # Eliminar archivo temporal
+#         os.remove(ruta_temp)
+
+#         return {"mensaje": f"{file.filename} subido e indexado correctamente"}
+#         # return indexado
+
+#     except Exception as e:
+#         return {"error": str(e)}
+
 @router.post("/upload-pdf")
-def upload_pdf(file: UploadFile = File(...)):
+def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     try:
-        # Guardar el archivo temporalmente
-        ruta_temp = f"./temp_{file.filename}"
-        with open(ruta_temp, "wb") as buffer:
+        # Ruta temporal para guardar el archivo
+        ruta_temporal = f"./temp_{file.filename}"
+
+        # Guardar el archivo en disco
+        with open(ruta_temporal, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Leer contenido del PDF
-        texto = leer_pdf(ruta_temp)
-        if not texto.strip():
-            os.remove(ruta_temp)
-            return {"error": "El PDF no contiene texto válido."}
+        # Procesar el archivo PDF en segundo plano
+        background_tasks.add_task(procesar_pdf_en_background, ruta_temporal, file.filename)
 
-        # Indexar en ChromaDB
-        # nombre = file.filename
-        # indexar_documento(nombre=nombre, contenido=texto)
-        collection_name = file.filename
-        
-        indexado = indexar_documento(chunks = Document, collection_name = collection_name )
-        
-        
-        # Eliminar archivo temporal
-        os.remove(ruta_temp)
-
-        # return {"mensaje": f"{file.filename} subido e indexado correctamente"}
-        return indexado
- 
+        return {"mensaje": f"{file.filename} subido con éxito. "}
+    
     except Exception as e:
         return {"error": str(e)}
+
+def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
+    try:
+        texto = leer_pdf(ruta)
+        if texto.strip():
+            indexar_documento(nombre=nombre_archivo, contenido=texto)
+    except Exception as error:
+        print(f"❌ Error al procesar {nombre_archivo}: {error}")
+    finally:
+        # Eliminar el archivo temporal
+        if os.path.exists(ruta):
+            os.remove(ruta)
+
 
 @router.post("/chat")
 def chat(data: Chat):
