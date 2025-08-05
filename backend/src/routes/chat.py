@@ -52,41 +52,48 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 
 @router.post("/chat")
 def chat(data: Chat):
-    personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
-    logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
-    restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
-    
-    from langchain.llms.ollama import Ollama
-    
-    llm = Ollama(model="mistral", temperature=0)
-    
-    from src.utils.chroma import get_chroma_vectorstore
-    retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
-    
-    from langchain.chains.retrieval_qa.base import RetrievalQA
-    
-    from langchain.prompts import PromptTemplate
-    
-    prompt = PromptTemplate(
-        template="""  
-            Contexto:
-            {context}
-            
-            Pregunta:
-            {question}
-            
-            Respuesta:
-        """, input_variables=["context", "question"]
-    )
-    
-    retrieval = RetrievalQA.from_chain_type(
-        llm=llm,
-        retriever=retriever,
-        chain_type="stuff",
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": prompt},
-    )
-    
-    result = retrieval.invoke({"query": data.pregunta})
+    try:
+        # Leer contexto base desde los markdown
+        personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
+        logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
+        restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
+        contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
 
-    return result
+        from langchain_ollama import OllamaLLM
+
+        llm = OllamaLLM(model="mistral", temperature=0)
+
+
+        from src.utils.chroma import get_chroma_vectorstore
+        retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
+
+        from langchain.chains.retrieval_qa.base import RetrievalQA
+        from langchain.prompts import PromptTemplate
+
+        prompt = PromptTemplate(
+            template="""  
+                Contexto:
+                {context}
+                
+                Pregunta:
+                {question}
+                
+                Respuesta:
+            """, input_variables=["context", "question"]
+        )
+
+        retrieval = RetrievalQA.from_chain_type(
+            llm=llm,
+            retriever=retriever,
+            chain_type="stuff",
+            return_source_documents=True,
+            chain_type_kwargs={"prompt": prompt},
+        )
+
+        pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
+        result = retrieval.invoke({"query": pregunta_final})
+
+        return result
+
+    except Exception as e:
+        return {"error": str(e)}
