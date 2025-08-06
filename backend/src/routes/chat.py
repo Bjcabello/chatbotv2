@@ -1,8 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
-from fastapi.responses import StreamingResponse
 from src.models.chat import Chat
-from src.utils.file import leer_markdown, leer_pdf
-from src.services.chatbot import construir_prompt, enviar_a_ollama
+from src.utils.file import cargar_markdown, leer_pdf
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
 from src.utils.processes import detectar_proceso
 from src.utils.chroma import buscar_fragmentos_relevantes, indexar_documento
@@ -53,35 +51,41 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        # Leer contexto base desde los markdown
-        personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
-        logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
-        restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
+        # 1. Cargar los markdown
+        personalidad = cargar_markdown(BASE_CONTEXT / "personality.md")
+        logica = cargar_markdown(BASE_CONTEXT / "business_logic.md")
+        restriccion = cargar_markdown(BASE_CONTEXT / "restrictions.md")
         contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
 
+        # 2. Cargar el modelo Mistral
         from langchain_ollama import OllamaLLM
-
         llm = OllamaLLM(model="mistral", temperature=0)
 
-
+        # 3. Cargar los vectores
         from src.utils.chroma import get_chroma_vectorstore
         retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
 
+        # 4. Preparar el prompt con el contexto base fijo
         from langchain.chains.retrieval_qa.base import RetrievalQA
         from langchain.prompts import PromptTemplate
 
         prompt = PromptTemplate(
-            template="""  
-                Contexto:
-                {context}
-                
-                Pregunta:
-                {question}
-                
-                Respuesta:
-            """, input_variables=["context", "question"]
+            input_variables=["context", "question"],
+            template=f"""
+                [Instrucciones del sistema]
+                {contexto_base}
+
+                [Información recuperada del documento]
+                {{context}}
+
+                [Pregunta del usuario]
+                {{question}}
+
+                [Respuesta del asistente]
+            """
         )
 
+        # 5. Cadena de preguntas + recuperación de contexto
         retrieval = RetrievalQA.from_chain_type(
             llm=llm,
             retriever=retriever,
@@ -90,8 +94,8 @@ def chat(data: Chat):
             chain_type_kwargs={"prompt": prompt},
         )
 
-        pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
-        result = retrieval.invoke({"query": pregunta_final})
+        # 6. Preguntar
+        result = retrieval.invoke({"query": data.pregunta})
 
         return result
 
