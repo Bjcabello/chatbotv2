@@ -75,7 +75,7 @@ def chat(data: Chat):
                 [Instrucciones del sistema]
                 {contexto_base}
 
-                [Información recuperada del documento]
+                [context]
                 {{context}}
 
                 [Pregunta del usuario]
