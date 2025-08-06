@@ -113,14 +113,15 @@ const handleSubirPDF = async () => {
 
           <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
             <label className='form-label fw-bold'>Tipo de Usuario:</label>
-            <input 
-              type="text" 
-              className='form-control' 
+            <select 
+              className='form-control'
               value={tipoUsuario} 
-              placeholder='Ingrese rol' 
-              style={{ width: "55%" }} 
               onChange={e => setTipoUsuario(e.target.value)} 
-            />
+              style={{ width: "55%" }} >
+              <option value="" disabled>escoge un rol</option>
+              <option value="admin">admin</option>
+              <option value="cliente">cliente</option>
+            </select>
           </div>
 
           <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>

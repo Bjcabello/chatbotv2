@@ -8,13 +8,6 @@ def leer_markdown(path: Path) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read().strip()
 
-# def leer_pdf(path: Path) -> str:
-#     texto = ""
-#     with PyMuPDFLoader.open(path) as pdf:
-#         for page in pdf.pages:
-#             texto += page.extract_text() + "\n"
-#     return texto.strip()
-
 def leer_pdf(path: Path) -> str:
     try:
         loader = PyMuPDFLoader(str(path))
@@ -23,7 +16,6 @@ def leer_pdf(path: Path) -> str:
         return texto.strip()
     except Exception as e:
         raise Exception(f"Error al leer el PDF: {str(e)}")
-
 
 
 def indexar_markdowns():
@@ -35,6 +27,6 @@ def indexar_markdowns():
                 contenido = leer_markdown(archivo)
                 if contenido.strip():
                     indexar_documento(nombre=str(archivo.name), contenido=contenido)
-                    print(f"✅ Indexado: {archivo.name}")
+                    print(f" Indexado: {archivo.name}")
             except Exception as e:
-                print(f"❌ Error al indexar {archivo.name}: {e}")
+                print(f" Error al indexar {archivo.name}: {e}")

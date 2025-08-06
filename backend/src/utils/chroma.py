@@ -1,6 +1,5 @@
 # 
 from langchain_chroma import Chroma
-from chromadb.utils import embedding_functions
 from src.config import  EMBEDDING_MODEL_NAME, CHROMA_COLLECTION_NAME,CHROMA_DB_PATH
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
