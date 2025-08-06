@@ -1,19 +1,33 @@
+from importlib.resources import path
 from pathlib import Path
 from  langchain_community.document_loaders import PyMuPDFLoader
-from langchain_community.document_loaders import UnstructuredMarkdownLoader
+from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
+from src.utils.chroma import indexar_documento
 
+def leer_markdown(path: Path) -> str:
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read().strip()
+    
+def indexar_markdowns():
+    directorios = [BASE_CONTEXT, PROCESSES_CONTEXT]
 
-def cargar_markdown(path: Path) -> str:
-    if not path.exists():
-        raise FileNotFoundError(f"El archivo {path} no existe.")
+    for directorio in directorios:
+        for archivo in directorio.glob("*.md"):
+            try:
+                contenido = leer_markdown(archivo)
+                if contenido.strip():
+                    indexar_documento(nombre=str(archivo.name), contenido=contenido)
+                    print(f" Indexado: {archivo.name}")
+            except Exception as e:
+                print(f" Error al indexar {archivo.name}: {e}")
 
-    loader = UnstructuredMarkdownLoader(str(path))
-    data = loader.load()
+# def leer_pdf(path: Path) -> str:
+#     texto = ""
+#     with PyMuPDFLoader.open(path) as pdf:
+#         for page in pdf.pages:
+#             texto += page.extract_text() + "\n"
+#     return texto.strip()
 
-    if not data or not data[0].page_content.strip():
-        raise ValueError(f"El archivo {path} está vacío o no se pudo cargar correctamente.")
-
-    return data[0].page_content
 def leer_pdf(path: Path) -> str:
     try:
         loader = PyMuPDFLoader(str(path))
@@ -22,17 +36,6 @@ def leer_pdf(path: Path) -> str:
         return texto.strip()
     except Exception as e:
         raise Exception(f"Error al leer el PDF: {str(e)}")
-    
 
-    
-# def leer_markdown(path: Path) -> str:
-#     with open(path, "r", encoding="utf-8") as f:
-#         return f.read().strip()
 
-# def leer_pdf(path: Path) -> str:
-#     texto = ""
-#     with PyMuPDFLoader.open(path) as pdf:
-#         for page in pdf.pages:
-#             texto += page.extract_text() + "\n"
-#     return texto.strip()
 

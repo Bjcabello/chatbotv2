@@ -15,6 +15,6 @@ torch
 # pymupd
 fastembed
 langchain-ollama
-"unstructured[md]"
+unstructured[md]
 # pip install fastapi  
 #pip install pymupdf

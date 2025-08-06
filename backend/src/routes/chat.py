@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.models.chat import Chat
-from src.utils.file import cargar_markdown, leer_pdf
+from src.utils.file import leer_markdown, leer_pdf
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
 from src.utils.processes import detectar_proceso
 from src.utils.chroma import buscar_fragmentos_relevantes, indexar_documento
@@ -51,41 +51,35 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        # cargar los markdown
-        personalidad = cargar_markdown(BASE_CONTEXT / "personality.md")
-        logica = cargar_markdown(BASE_CONTEXT / "business_logic.md")
-        restriccion = cargar_markdown(BASE_CONTEXT / "restrictions.md")
-        contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
+        # Leer contexto base desde los markdown
+        # personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
+        # logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
+        # restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
+        # contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
 
-        
         from langchain_ollama import OllamaLLM
+
         llm = OllamaLLM(model="mistral", temperature=0)
 
-        
+
         from src.utils.chroma import get_chroma_vectorstore
         retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
 
-        
         from langchain.chains.retrieval_qa.base import RetrievalQA
         from langchain.prompts import PromptTemplate
 
         prompt = PromptTemplate(
-            input_variables=["context", "question"],
-            template=f"""
-                [Instrucciones del sistema]
-                {contexto_base}
-
-                [context]
-                {{context}}
-
-                [Pregunta del usuario]
-                {{question}}
-
-                [Respuesta del asistente]
-            """
+            template="""  
+                Contexto:
+                {context}
+                
+                Pregunta:
+                {question}
+                
+                Respuesta:
+            """, input_variables=["context", "question"]
         )
 
-        
         retrieval = RetrievalQA.from_chain_type(
             llm=llm,
             retriever=retriever,
@@ -94,10 +88,14 @@ def chat(data: Chat):
             chain_type_kwargs={"prompt": prompt},
         )
 
-        
-        result = retrieval.invoke({"query": data.pregunta})
+        # pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
+        # result = retrieval.invoke({"query": pregunta_final})
 
-        return result
+        # return result
+        respuesta_completa = retrieval.invoke({"query": data.pregunta})
+        solo_respuesta = respuesta_completa["result"]
+
+        return {"respuesta": solo_respuesta}
 
     except Exception as e:
         return {"error": str(e)}
