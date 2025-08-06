@@ -1,4 +1,3 @@
-from importlib.resources import path
 from pathlib import Path
 from  langchain_community.document_loaders import PyMuPDFLoader
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
@@ -9,9 +8,9 @@ def leer_markdown(path: Path) -> str:
         return f.read().strip()
     
 def indexar_markdowns():
-    directorios = [BASE_CONTEXT, PROCESSES_CONTEXT]
+    ruta = [BASE_CONTEXT, PROCESSES_CONTEXT]
 
-    for directorio in directorios:
+    for directorio in ruta:
         for archivo in directorio.glob("*.md"):
             try:
                 contenido = leer_markdown(archivo)

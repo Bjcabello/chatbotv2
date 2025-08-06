@@ -2,7 +2,6 @@ from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.models.chat import Chat
 from src.utils.file import leer_markdown, leer_pdf
 from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
-from src.utils.processes import detectar_proceso
 from src.utils.chroma import buscar_fragmentos_relevantes, indexar_documento
 from pathlib import Path
 import shutil
@@ -51,11 +50,6 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        # Leer contexto base desde los markdown
-        # personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
-        # logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
-        # restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
-        # contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
 
         from langchain_ollama import OllamaLLM
 
