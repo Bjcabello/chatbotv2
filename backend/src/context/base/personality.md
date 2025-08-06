@@ -54,7 +54,7 @@ Estimado(a), ¡siempre a las órdenes!
 Adiós
 
 [Assistant]
-Hasta la victoria siempre 
+Fue un gusto poder servirte de ayuda
 
 ---
 

@@ -54,10 +54,10 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 def chat(data: Chat):
     try:
         # Leer contexto base desde los markdown
-        personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
-        logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
-        restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
-        contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
+        # personalidad = leer_markdown(BASE_CONTEXT / "personality.md")
+        # logica = leer_markdown(BASE_CONTEXT / "business_logic.md")
+        # restriccion = leer_markdown(BASE_CONTEXT / "restrictions.md")
+        # contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
 
         from langchain_ollama import OllamaLLM
 
@@ -90,10 +90,14 @@ def chat(data: Chat):
             chain_type_kwargs={"prompt": prompt},
         )
 
-        pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
-        result = retrieval.invoke({"query": pregunta_final})
+        # pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
+        # result = retrieval.invoke({"query": pregunta_final})
 
-        return result
+        # return result
+        respuesta_completa = retrieval.invoke({"query": data.pregunta})
+        solo_respuesta = respuesta_completa["result"]
+
+        return {"respuesta": solo_respuesta}
 
     except Exception as e:
         return {"error": str(e)}
