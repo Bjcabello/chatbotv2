@@ -51,21 +51,21 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        # 1. Cargar los markdown
+        # cargar los markdown
         personalidad = cargar_markdown(BASE_CONTEXT / "personality.md")
         logica = cargar_markdown(BASE_CONTEXT / "business_logic.md")
         restriccion = cargar_markdown(BASE_CONTEXT / "restrictions.md")
         contexto_base = f"{personalidad}\n\n{logica}\n\n{restriccion}"
 
-        # 2. Cargar el modelo Mistral
+        
         from langchain_ollama import OllamaLLM
         llm = OllamaLLM(model="mistral", temperature=0)
 
-        # 3. Cargar los vectores
+        
         from src.utils.chroma import get_chroma_vectorstore
         retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
 
-        # 4. Preparar el prompt con el contexto base fijo
+        
         from langchain.chains.retrieval_qa.base import RetrievalQA
         from langchain.prompts import PromptTemplate
 
@@ -85,7 +85,7 @@ def chat(data: Chat):
             """
         )
 
-        # 5. Cadena de preguntas + recuperación de contexto
+        
         retrieval = RetrievalQA.from_chain_type(
             llm=llm,
             retriever=retriever,
@@ -94,7 +94,7 @@ def chat(data: Chat):
             chain_type_kwargs={"prompt": prompt},
         )
 
-        # 6. Preguntar
+        
         result = retrieval.invoke({"query": data.pregunta})
 
         return result
