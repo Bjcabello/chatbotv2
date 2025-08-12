@@ -1,6 +1,6 @@
 # 
 from langchain_chroma import Chroma
-from src.config import  EMBEDDING_MODEL_NAME, CHROMA_DB_PATH
+from src.config import  EMBEDDING_MODEL_NAME, CHROMA_DB_PATH, CHROMA_COLLECTION_MD, CHROMA_COLLECTION_PDF
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.base import VectorStoreRetriever
@@ -14,9 +14,10 @@ from typing import Optional, List, Dict
 embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 
 # Inicializar almacén de vectores persistente
-def get_chroma_vectorstore():
+def get_chroma_vectorstore(collection_name: str):
     return Chroma(
         # collection_name=CHROMA_COLLECTION_NAME,
+        collection_name=collection_name,
         embedding_function=embedding_model,
         persist_directory=CHROMA_DB_PATH
     )
@@ -40,8 +41,8 @@ def generar_hash(texto: str) -> str:
     return hash_obj.hexdigest()
 
 # Indexación del documento
-def indexar_documento(nombre: str, contenido: str):
-    vectorstore = get_chroma_vectorstore()
+def indexar_documento(nombre: str, contenido: str, collection_name: str):
+    vectorstore = get_chroma_vectorstore(collection_name)
         
     hash = generar_hash(contenido)
     
@@ -67,8 +68,8 @@ def indexar_documento(nombre: str, contenido: str):
     
     
 # Búsqueda relevante
-def buscar_fragmentos_relevantes(pregunta: str, n_results: int = 3) -> str:
-    vectorstore = get_chroma_vectorstore()
+def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3) -> str:
+    vectorstore = get_chroma_vectorstore(collection_name)
     retriever: VectorStoreRetriever = vectorstore.as_retriever(search_kwargs={"k": n_results})
     documentos = retriever.invoke(pregunta)
     return [doc.page_content for doc in documentos]

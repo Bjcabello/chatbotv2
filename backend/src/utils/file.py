@@ -1,7 +1,7 @@
 from pathlib import Path
 import pdfplumber
 from  langchain_community.document_loaders import PyMuPDFLoader
-from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
+from src.config import BASE_CONTEXT, PROCESSES_CONTEXT, CHROMA_COLLECTION_MD
 from src.utils.chroma import indexar_documento
 
 def leer_markdown(path: Path) -> str:
@@ -26,7 +26,7 @@ def indexar_markdowns():
             try:
                 contenido = leer_markdown(archivo)
                 if contenido.strip():
-                    indexar_documento(nombre=str(archivo.name), contenido=contenido)
+                    indexar_documento(nombre=str(archivo.name), contenido=contenido, collection_name=CHROMA_COLLECTION_MD)
                     print(f" Indexado: {archivo.name}")
             except Exception as e:
                 print(f" Error al indexar {archivo.name}: {e}")

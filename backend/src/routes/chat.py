@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
+from src.config import CHROMA_COLLECTION_PDF, CHROMA_COLLECTION_MD
 from src.models.chat import Chat
 from src.utils.file import leer_pdf
 from src.utils.chroma import indexar_documento
@@ -32,7 +33,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
     try:
         texto = leer_pdf(ruta)
         if texto.strip():
-            indexar_documento(nombre=nombre_archivo, contenido=texto)
+            indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_COLLECTION_PDF)
     except Exception as error:
         print(f"❌ Error al procesar {nombre_archivo}: {error}")
     finally:
@@ -45,15 +46,22 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 def chat(data: Chat):
     try:
         from langchain_ollama import OllamaLLM
+        from langchain.chains.retrieval_qa.base import RetrievalQA
+        from langchain.prompts import PromptTemplate
 
         llm = OllamaLLM(model="llama3", temperature=0)
 
+         # 🔍 Aquí decides la colección según la pregunta
+        if "pdf" in data.pregunta.lower() or "documento" in data.pregunta.lower():
+            collection_name = CHROMA_COLLECTION_PDF
+        else:
+            collection_name = CHROMA_COLLECTION_MD
+
 
         from src.utils.chroma import get_chroma_vectorstore
-        retriever = get_chroma_vectorstore().as_retriever(search_kwargs={"k": 5})
+        retriever = get_chroma_vectorstore(collection_name).as_retriever(search_kwargs={"k": 5})
 
-        from langchain.chains.retrieval_qa.base import RetrievalQA
-        from langchain.prompts import PromptTemplate
+        
 
         prompt = PromptTemplate(
             template="""  

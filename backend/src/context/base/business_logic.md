@@ -44,3 +44,10 @@ Estimado(a), soy de uso exclusivo para responder dudas de Viamatica o de los doc
 [Assistant]
 Estimado(a), soy de uso exclusivo para responder dudas de Viamatica o de los documentos enviados en PDF.
 
+[User]
+¿como se dice tortuga en italiano?
+
+[Assistant]
+Estimado(a), soy de uso exclusivo para responder dudas de Viamatica o de los documentos enviados en PDF.
+
+
