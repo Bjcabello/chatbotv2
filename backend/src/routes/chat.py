@@ -79,6 +79,7 @@ md_examples = [
     "como creo un usuario?",
     "como edito un usuario?",
     "como borro un usuario?",
+    "como se dice perro en ingles",
     "crear",
     "editar",
     "viamatica",
