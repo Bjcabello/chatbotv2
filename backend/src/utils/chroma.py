@@ -1,6 +1,6 @@
 # 
 from langchain_chroma import Chroma
-from src.config import  EMBEDDING_MODEL_NAME, CHROMA_COLLECTION_NAME,CHROMA_DB_PATH
+from src.config import  EMBEDDING_MODEL_NAME, CHROMA_DB_PATH
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.base import VectorStoreRetriever
@@ -16,7 +16,7 @@ embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 # Inicializar almacén de vectores persistente
 def get_chroma_vectorstore():
     return Chroma(
-        collection_name=CHROMA_COLLECTION_NAME,
+        # collection_name=CHROMA_COLLECTION_NAME,
         embedding_function=embedding_model,
         persist_directory=CHROMA_DB_PATH
     )
