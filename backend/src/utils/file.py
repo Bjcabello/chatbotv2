@@ -1,31 +1,12 @@
 from pathlib import Path
-from  langchain_community.document_loaders import PyMuPDFLoader
-from src.config import BASE_CONTEXT, PROCESSES_CONTEXT
+from src.config import BASE_CONTEXT, PROCESSES_CONTEXT, CHROMA_MARKDOWN_COLLECTION
 from src.utils.chroma import indexar_documento
+from langchain_community.document_loaders import PyMuPDFLoader
 
+# Definir leer_markdown dentro del archivo
 def leer_markdown(path: Path) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read().strip()
-    
-def indexar_markdowns():
-    ruta = [BASE_CONTEXT, PROCESSES_CONTEXT]
-
-    for directorio in ruta:
-        for archivo in directorio.glob("*.md"):
-            try:
-                contenido = leer_markdown(archivo)
-                if contenido.strip():
-                    indexar_documento(nombre=str(archivo.name), contenido=contenido)
-                    print(f" Indexado: {archivo.name}")
-            except Exception as e:
-                print(f" Error al indexar {archivo.name}: {e}")
-
-# def leer_pdf(path: Path) -> str:
-#     texto = ""
-#     with PyMuPDFLoader.open(path) as pdf:
-#         for page in pdf.pages:
-#             texto += page.extract_text() + "\n"
-#     return texto.strip()
 
 def leer_pdf(path: Path) -> str:
     try:
@@ -36,5 +17,23 @@ def leer_pdf(path: Path) -> str:
     except Exception as e:
         raise Exception(f"Error al leer el PDF: {str(e)}")
 
+def indexar_markdowns():
+    # Indexar archivos de la carpeta base
+    for archivo in BASE_CONTEXT.glob("*.md"):
+        try:
+            contenido = leer_markdown(archivo)
+            if contenido.strip():
+                indexar_documento(nombre=str(archivo.name), contenido=contenido, collection_name=CHROMA_MARKDOWN_COLLECTION, categoria="base")
+                print(f"Indexado: {archivo.name} (base)")
+        except Exception as e:
+            print(f"Error al indexar {archivo.name}: {e}")
 
-
+    # Indexar archivos de la carpeta processes
+    for archivo in PROCESSES_CONTEXT.glob("*.md"):
+        try:
+            contenido = leer_markdown(archivo)
+            if contenido.strip():
+                indexar_documento(nombre=str(archivo.name), contenido=contenido, collection_name=CHROMA_MARKDOWN_COLLECTION, categoria="processes")
+                print(f"Indexado: {archivo.name} (processes)")
+        except Exception as e:
+            print(f"Error al indexar {archivo.name}: {e}")
