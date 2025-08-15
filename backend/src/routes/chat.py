@@ -24,6 +24,21 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return username
 
 @router.post("/login")
+def login(login_request: AuthRequest):
+    try:
+        if mongo_db.verify_default_user(login_request.username, login_request.password):
+            token = mongo_db.generate_token(login_request.username)
+            return {"mensaje": f"Inicio de sesión exitoso para {login_request.username}. 😊", "token": token, "status": "success"}
+        user = mongo_db.find_user(login_request.username, login_request.password)
+        if user:
+            token = mongo_db.generate_token(login_request.username)
+            return {"mensaje": f"Inicio de sesión exitoso para {login_request.username}. 😊", "token": token, "status": "success"}
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return {"error": str(e)}
+
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
