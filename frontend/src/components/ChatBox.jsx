@@ -165,7 +165,7 @@ const handleSubirPDF = async () => {
             style={{ width: "40%" }} 
             onClick={handleEnviar} 
             disabled={loading}>
-            {loading ? '🐌.....' : 'Enviar'}
+            {loading ? 'cargando respuesta ....' : 'Enviar'}
           </button>
         </div>
 

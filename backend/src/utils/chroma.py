@@ -1,6 +1,6 @@
 # 
 from langchain_chroma import Chroma
-from src.config import  EMBEDDING_MODEL_NAME, CHROMA_DB_PATH, CHROMA_COLLECTION_MD, CHROMA_COLLECTION_PDF
+from src.config import  EMBEDDING_MODEL_NAME, CHROMA_DB_PATH
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.base import VectorStoreRetriever

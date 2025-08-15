@@ -35,7 +35,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
         if texto.strip():
             indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_COLLECTION_PDF)
     except Exception as error:
-        print(f"❌ Error al procesar {nombre_archivo}: {error}")
+        print(f" Error al procesar {nombre_archivo}: {error}")
     finally:
         # Eliminar el archivo temporal
         if os.path.exists(ruta):
@@ -86,6 +86,7 @@ md_examples = [
     "instrucciones"
     "gracias"
     "adios"
+    "como te llamas?"
 ]
 
 def detectar_tipo_pregunta(pregunta: str) -> str:
@@ -110,10 +111,10 @@ def chat(data: Chat):
         from langchain.chains.retrieval_qa.base import RetrievalQA
         from langchain.prompts import PromptTemplate
 
-        llm = OllamaLLM(model="llama3", temperature=0)
+        llm = OllamaLLM(model="mistral", temperature=0.1)
 
         #  Aquí decides la colección según la pregunta
-        # 📌 Usamos la detección semántica
+        #  Usamos la detección semántica
         collection_name = detectar_tipo_pregunta(data.pregunta)
 
         
