@@ -11,3 +11,13 @@ CHROMA_PDF_COLLECTION = "pdf_index"
 
 EMBEDDING_MODEL_NAME = "BAAI/bge-m3"
 CHROMA_DB_PATH = "./chroma_db"
+
+
+#conexion mongodb
+from decouple import config
+MONGO_URI = config('MONGO_URI')
+MONGO_DB_NAME = config('MONGO_DB_NAME')
+MONGO_COLLECTION_NAME = config('MONGO_COLLECTION_NAME')
+JWT_SECRET_KEY = config('JWT_SECRET_KEY')
+DEFAULT_USERNAME = config('DEFAULT_USERNAME')
+DEFAULT_PASSWORD = config('DEFAULT_PASSWORD')

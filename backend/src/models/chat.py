@@ -6,3 +6,4 @@ class Chat(BaseModel):
     dni: str = Field(min_length=3, max_length=10)
     tipo_usuario: Literal['admin', 'cliente'] = 'admin'
     pregunta: str
+
