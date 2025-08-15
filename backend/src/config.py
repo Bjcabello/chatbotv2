@@ -13,8 +13,9 @@ EMBEDDING_MODEL_NAME = "BAAI/bge-m3"
 CHROMA_DB_PATH = "./chroma_db"
 
 
-#conexion mongodb
+
 from decouple import config
+
 MONGO_URI = config('MONGO_URI')
 MONGO_DB_NAME = config('MONGO_DB_NAME')
 MONGO_COLLECTION_NAME = config('MONGO_COLLECTION_NAME')

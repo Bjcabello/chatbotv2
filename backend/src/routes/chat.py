@@ -1,5 +1,9 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.models.chat import Chat
+from fastapi import APIRouter, HTTPException, Depends, status
+from src.models.login import AuthRequest
+from src.db.mongodb import mongo_db
+from fastapi.security import OAuth2PasswordBearer
 from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown
 from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes, get_chroma_vectorstore
 from src.config import CHROMA_MARKDOWN_COLLECTION, CHROMA_PDF_COLLECTION
@@ -12,6 +16,14 @@ router = APIRouter()
 
 # Ejecutar indexación al iniciar (puedes moverlo a fondo si es necesario)
 indexar_markdowns()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    username = mongo_db.verify_token(token)
+    return username
+
+@router.post("/login")
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
