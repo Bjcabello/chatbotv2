@@ -75,3 +75,5 @@ def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results:
     return [doc.page_content for doc in documentos]
 
 
+
+
