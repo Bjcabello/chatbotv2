@@ -20,3 +20,4 @@ app.add_middleware(
 indexar_markdowns()
 
 app.include_router(chat_router)
+
