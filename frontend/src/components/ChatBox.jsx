@@ -23,7 +23,7 @@ function ChatBox() {
     formData.append('file', archivoPDF);
 
     try {
-      const response = await fetch('http://localhost:8000/upload-pdf', {
+      const response = await fetch('http://localhost:8000/api/upload-pdf', {
         method: 'POST',
         body: formData,
         headers: {
@@ -52,7 +52,7 @@ function ChatBox() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/chat', {
+      const response = await fetch('http://localhost:8000/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
