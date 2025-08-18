@@ -1,11 +1,23 @@
 import ChatBox from './components/ChatBox'
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
+import RegisterBox from './components/RegisterBox'
 
+// import Register from
 function App() {
   return (
-    <div>
-      <ChatBox />
-    </div>
+    <Router>
+
+<Routes>
+  <Route path="/" element={<RegisterBox/>}/>
+  <Route path="/register" element={<RegisterBox/>}/>
+  <Route path="/chat" element= {<ChatBox/>}/>
+
+
+</Routes>
+
+  </Router>
   )
 }
+
 
 export default App

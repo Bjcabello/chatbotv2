@@ -13,6 +13,8 @@ pdf_examples = [
     "Resume la página 2 del documento",
     "Analiza el texto del archivo",
     "pdf",
+    "libro"
+    "libros"
     "explicame",
     "archivo",
     "pdf",
@@ -40,6 +42,8 @@ md_examples = [
     "como creo un usuario?",
     "como edito un usuario?",
     "como borro un usuario?",
+    "como actualizo un usuario?",
+    "como elimino un usuario?"
     "como se dice perro en ingles",
     "crear",
     "editar",

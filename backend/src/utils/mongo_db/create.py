@@ -1,5 +1,5 @@
 #backend/src/utils/mongo_db/create.py
-import uuid
+
 from pymongo.errors import OperationFailure
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
 from src.models.users_models import User

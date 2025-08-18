@@ -5,9 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.utils.file import indexar_markdowns
 from src.utils.mongo_db.create import ensure_indexes
 
-app = FastAPI()
-app.title = "ChatBot IA"
-print(app.title)
+descripcion = """ un chatbot que responde dudas de viamatica y lee pdfs """
+app = FastAPI(
+    title="chatVMT",
+    description=descripcion
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  

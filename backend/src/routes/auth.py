@@ -17,7 +17,7 @@ def register(payload: User):
 
     # ¿ya existe el email?
     if collection.find_one({"email": payload.email}):
-        raise HTTPException(status_code=409, detail="Email ya registrado")
+        raise HTTPException(status_code=409, detail="ese mail ya esta registrado")
 
     user_doc = {
         "user_name": payload.user_name,
