@@ -91,7 +91,7 @@ def chat(data: Chat):
         from langchain.prompts import PromptTemplate
 
         start_time = time.time()
-        llm = OllamaLLM(model="gemma:2b", temperature=0)  # Cambiado a tinyllama (más ligero)
+        llm = OllamaLLM(model="mistral", temperature=0)  # Cambiado a tinyllama (más ligero)
 
         # Recuperar contexto base (personalidad, lógica, restricciones)
         contexto_base = "\n".join(buscar_fragmentos_relevantes("contexto general", CHROMA_MARKDOWN_COLLECTION, category_filter="base", n_results=3))
