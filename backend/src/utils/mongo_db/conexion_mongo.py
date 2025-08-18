@@ -17,12 +17,3 @@ def connect_to_mongodb():
     except Exception as e:
         raise Exception(
             "The following error occurred: ", e)
-
-    # except ConnectionFailure as e:
-    #     raise Exception(f"No se pudo conectar a MongoDB: {e}")
-    # except Exception as e:
-    #     raise Exception(f"Error inesperado: {e}")
-
-# Ejemplo de uso (puedes descomentar para probar)
-# client, db, collection = connect_to_mongodb()
-# client.close()  # Cierra la conexión cuando termines
