@@ -23,27 +23,10 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     username = mongo_db.verify_token(token)
     return username
 
-@router.post("/login")
-def login(login_request: AuthRequest):
-    try:
-        if mongo_db.verify_default_user(login_request.username, login_request.password):
-            token = mongo_db.generate_token(login_request.username)
-            return {"mensaje": f"Inicio de sesión exitoso para {login_request.username}. 😊", "token": token, "status": "success"}
-        user = mongo_db.find_user(login_request.username, login_request.password)
-        if user:
-            token = mongo_db.generate_token(login_request.username)
-            return {"mensaje": f"Inicio de sesión exitoso para {login_request.username}. 😊", "token": token, "status": "success"}
-        raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        return {"error": str(e)}
-
 @router.post("/register")
 def register(registration_request: AuthRequest):
     try:
         if mongo_db.insert_user(registration_request.username, registration_request.password):
-            # Almacena el correo y el user_id en MongoDB
             mongo_db.collection.update_one(
                 {"username": registration_request.username},
                 {
@@ -56,6 +39,22 @@ def register(registration_request: AuthRequest):
             )
             return {"mensaje": f"Registro exitoso para {registration_request.username}. 😊", "status": "success"}
         raise HTTPException(status_code=400, detail="Usuario ya existe")
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return {"error": str(e)}
+
+@router.post("/login")
+def login(login_request: AuthRequest):
+    try:
+        if mongo_db.verify_default_user(login_request.username, login_request.password):
+            token = mongo_db.generate_token(login_request.username)
+            return {"message": f"Login successful for {login_request.username}. 😊", "token": token, "status": "success"}
+        user = mongo_db.find_user(login_request.username, login_request.password)
+        if user:
+            token = mongo_db.generate_token(login_request.username)
+            return {"message": f"Login successful for {login_request.username}. 😊", "token": token, "status": "success"}
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     except HTTPException as e:
         raise e
     except Exception as e:

@@ -8,12 +8,18 @@ from fastapi import HTTPException
 class MongoDBConnection:
     def __init__(self):
         self.client = MongoClient(MONGO_URI)
-        self.db = self.client[MONGO_DB_NAME]
-        self.collection = self.db[MONGO_COLLECTION_NAME]
-        self.secret_key = JWT_SECRET_KEY
+        try:
+            self.client.admin.command('ping')  
+            self.db = self.client[MONGO_DB_NAME]
+            self.collection = self.db[MONGO_COLLECTION_NAME]
+            self.secret_key = JWT_SECRET_KEY
+            print("Conexión a MongoDB exitosa")
+        except Exception as e:
+            print(f"Error de conexión a MongoDB: {e}")
+            raise
 
     def __del__(self):
-        # Cierra la conexión al destruir la instancia (opcional)
+       
         self.close()
 
     def get_client(self):

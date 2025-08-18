@@ -19,5 +19,5 @@ app.add_middleware(
 # Ejecutar la indexación de los markdowns al arrancar
 indexar_markdowns()
 
-app.include_router(chat_router)
+app.include_router(chat_router, prefix="/api")
 
