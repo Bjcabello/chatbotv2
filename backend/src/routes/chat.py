@@ -67,7 +67,7 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
 
         background_tasks.add_task(procesar_pdf_en_background, ruta_temporal, file.filename)
 
-        return {"mensaje": f"{file.filename} subido con éxito. 😊"}
+        return {"mensaje": f"{file.filename} subido con éxito. "}
     except Exception as e:
         return {"error": str(e)}
 
