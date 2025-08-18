@@ -14,7 +14,7 @@ import time
 
 router = APIRouter()
 
-# Ejecutar indexación al iniciar (puedes moverlo a fondo si es necesario)
+
 indexar_markdowns()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
