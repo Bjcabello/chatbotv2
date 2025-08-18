@@ -1,8 +1,11 @@
+#backend/src/utils/mongo_db/create.py
 import uuid
 from pymongo.errors import OperationFailure
-from conexion_mongo import *      
+from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
+from src.models.users_models import User
+from pydantic import ValidationError
 
-def create_users_collection():
+def validation_users():
     try:
         db = connect_to_mongodb()
 
@@ -10,7 +13,7 @@ def create_users_collection():
         validator = {
             "$jsonSchema": {
                 "bsonType": "object",
-                "required": ["user_name", "password", "email"],  # Campos obligatorios
+                "required": ["user_name", "password", "email", "createdAt"],  # Campos obligatorios
                 "properties": {
                     "_id": {
                         "bsonType": "binData",  # Para UUID
@@ -40,25 +43,23 @@ def create_users_collection():
         raise Exception(f"Error al configurar la colección: {e}")
     except Exception as e:
         raise Exception(f"Error inesperado: {e}")
+    
 
-def insert_user(user_name, password, email):
-    try:
-        _, _, collection = connect_to_mongodb()
-        
-        # Generar un UUID para el _id
-        user_id = uuid.uuid4()
-        
-        # Crear el documento del usuario
-        user_document = {
-            "_id": user_id.bytes,  # Convertir UUID a formato binario para MongoDB
-            "user_name": user_name,
-            "password": password,  # Nota: ¡Debes hashear la contraseña en producción!
-            "email": email
-        }
-        
-        result = collection.insert_one(user_document)
-        print(f"Usuario insertado con ID: {user_id}")
-        return result
 
-    except Exception as e:
-        raise Exception(f"Error al insertar usuario: {e}")
+def ensure_indexes(ttl_seconds: int | None = None):
+    """
+    Crea índices necesarios:
+    - email único
+    - TTL sobre createdAt (si ttl_seconds no es None)
+    """
+    db, collection = connect_to_mongodb()
+
+    # Único por email
+    collection.create_index("email", unique=True)
+
+    # TTL (si quieres que caduque)
+    if ttl_seconds is not None:
+        # Nota: TTL funciona sobre un campo DATE.
+        collection.create_index("createdAt", expireAfterSeconds=int(ttl_seconds))
+
+    print("Índices garantizados (email único, TTL opcional).")

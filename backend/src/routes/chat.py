@@ -45,6 +45,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 # Cargamos un modelo de embeddings ligero para clasificación
 classifier_model = SentenceTransformer("all-MiniLM-L6-v2")
 
+
 pdf_examples = [
     "¿Qué dice el documento?",
     "Explícame el archivo que subí",

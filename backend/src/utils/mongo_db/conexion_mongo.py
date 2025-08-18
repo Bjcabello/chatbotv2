@@ -1,3 +1,4 @@
+#backend/src/utlis/mongo_db/conexion.py
 from pymongo import MongoClient
 # from pymongo.errors import ConnectionFailure
 
@@ -11,7 +12,7 @@ def connect_to_mongodb():
         
         database = client["Login_User"]  # Nombre de la base de datos
         collection = database["users"]  # Nombre de la colección
-        return collection
+        return database, collection
     
     except Exception as e:
         raise Exception(
