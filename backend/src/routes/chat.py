@@ -39,6 +39,28 @@ def login(login_request: AuthRequest):
     except Exception as e:
         return {"error": str(e)}
 
+@router.post("/register")
+def register(registration_request: AuthRequest):
+    try:
+        if mongo_db.insert_user(registration_request.username, registration_request.password):
+            # Almacena el correo y el user_id en MongoDB
+            mongo_db.collection.update_one(
+                {"username": registration_request.username},
+                {
+                    "$set": {
+                        "email": registration_request.email,
+                        "user_id": registration_request.user_id
+                    }
+                },
+                upsert=True
+            )
+            return {"mensaje": f"Registro exitoso para {registration_request.username}. 😊", "status": "success"}
+        raise HTTPException(status_code=400, detail="Usuario ya existe")
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return {"error": str(e)}
+
 
 @router.post("/upload-pdf")
 def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
