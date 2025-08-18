@@ -46,11 +46,11 @@ def login(login_request: LoginRequest):
     try:
         if mongo_db.verify_default_user(login_request.email, login_request.password):
             token = mongo_db.generate_token(login_request.email)
-            return {"message": f"Inicio sesión exitosamente {login_request.email}.", "token": token, "status": "success"}
+            return {"message": f"Inicio sesión exitoso {login_request.email}.", "token": token, "status": "success"}
         user = mongo_db.find_user(login_request.email, login_request.password)
         if user:
             token = mongo_db.generate_token(login_request.email)
-            return {"message": f"Login successful for {login_request.email}. 😊", "token": token, "status": "success"}
+            return {"message": f"Inicio sesión exitoso {login_request.email}. ", "token": token, "status": "success"}
         raise HTTPException(status_code=401, detail="Invalid credentials")
     except HTTPException as e:
         raise e
