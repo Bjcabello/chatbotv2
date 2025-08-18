@@ -9,7 +9,7 @@ class MongoDBConnection:
     def __init__(self):
         self.client = MongoClient(MONGO_URI)
         try:
-            self.client.admin.command('ping')  
+            self.client.admin.command('ping')
             self.db = self.client[MONGO_DB_NAME]
             self.collection = self.db[MONGO_COLLECTION_NAME]
             self.secret_key = JWT_SECRET_KEY
@@ -19,7 +19,6 @@ class MongoDBConnection:
             raise
 
     def __del__(self):
-       
         self.close()
 
     def get_client(self):
@@ -28,28 +27,28 @@ class MongoDBConnection:
     def close(self):
         self.client.close()
 
-    def find_user(self, username: str, password: str):
-        if not username or not password:
+    def find_user(self, email: str, password: str):
+        if not email or not password:
             return None
-        return self.collection.find_one({"username": username, "password": password})
+        return self.collection.find_one({"email": email, "password": password})
 
-    def insert_user(self, username: str, password: str):
-        if not username or not password:
+    def insert_user(self, email: str, password: str):
+        if not email or not password:
             return False
-        if self.collection.find_one({"username": username}):
+        if self.collection.find_one({"email": email}):
             return False
-        self.collection.insert_one({"username": username, "password": password})
+        self.collection.insert_one({"email": email, "password": password})
         return True
 
-    def verify_default_user(self, username: str, password: str):
-        return username == DEFAULT_USERNAME and password == DEFAULT_PASSWORD
+    def verify_default_user(self, email: str, password: str):
+        return email == DEFAULT_USERNAME and password == DEFAULT_PASSWORD
 
-    def generate_token(self, username: str):
-        if not username:
-            raise HTTPException(status_code=400, detail="Username is required")
+    def generate_token(self, email: str):
+        if not email:
+            raise HTTPException(status_code=400, detail="Email is required")
         payload = {
-            "sub": username,
-            "exp": datetime.now(timezone.utc) + timedelta(hours=24)  
+            "sub": email,
+            "exp": datetime.now(timezone.utc) + timedelta(hours=24)
         }
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
 

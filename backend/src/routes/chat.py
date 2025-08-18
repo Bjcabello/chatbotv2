@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.models.chat import Chat
 from fastapi import APIRouter, HTTPException, Depends, status
-from src.models.login import AuthRequest
+from src.models.login import AuthRequest, LoginRequest
 from src.db.mongodb import mongo_db
 from fastapi.security import OAuth2PasswordBearer
 from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown
@@ -20,24 +20,21 @@ indexar_markdowns()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    username = mongo_db.verify_token(token)
-    return username
+    email = mongo_db.verify_token(token)
+    return email
 
 @router.post("/register")
 def register(registration_request: AuthRequest):
     try:
-        if mongo_db.insert_user(registration_request.username, registration_request.password):
+        if mongo_db.insert_user(registration_request.email, registration_request.password):
+            update_data = {"email": registration_request.email, "password": registration_request.password}
+            update_data["user_id"] = registration_request.user_id
             mongo_db.collection.update_one(
-                {"username": registration_request.username},
-                {
-                    "$set": {
-                        "email": registration_request.email,
-                        "user_id": registration_request.user_id
-                    }
-                },
+                {"email": registration_request.email},
+                {"$set": update_data},
                 upsert=True
             )
-            return {"mensaje": f"Registro exitoso para {registration_request.username}. 😊", "status": "success"}
+            return {"message": f"Registro exitoso para {registration_request.email}.", "status": "success"}
         raise HTTPException(status_code=400, detail="Usuario ya existe")
     except HTTPException as e:
         raise e
@@ -45,15 +42,15 @@ def register(registration_request: AuthRequest):
         return {"error": str(e)}
 
 @router.post("/login")
-def login(login_request: AuthRequest):
+def login(login_request: LoginRequest):
     try:
-        if mongo_db.verify_default_user(login_request.username, login_request.password):
-            token = mongo_db.generate_token(login_request.username)
-            return {"message": f"Login successful for {login_request.username}. 😊", "token": token, "status": "success"}
-        user = mongo_db.find_user(login_request.username, login_request.password)
+        if mongo_db.verify_default_user(login_request.email, login_request.password):
+            token = mongo_db.generate_token(login_request.email)
+            return {"message": f"Inicio sesión exitosamente {login_request.email}.", "token": token, "status": "success"}
+        user = mongo_db.find_user(login_request.email, login_request.password)
         if user:
-            token = mongo_db.generate_token(login_request.username)
-            return {"message": f"Login successful for {login_request.username}. 😊", "token": token, "status": "success"}
+            token = mongo_db.generate_token(login_request.email)
+            return {"message": f"Login successful for {login_request.email}. 😊", "token": token, "status": "success"}
         raise HTTPException(status_code=401, detail="Invalid credentials")
     except HTTPException as e:
         raise e
