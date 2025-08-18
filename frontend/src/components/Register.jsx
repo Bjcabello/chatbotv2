@@ -43,7 +43,7 @@ function Register() {
 
   return (
     <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
-      <h3 className="text-center">Registro 🤖 Viadocs</h3>
+      <h3 className="text-center">Registro</h3>
       <form onSubmit={handleRegister} className="row justify-content-center mt-5">
         <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
           <label className="form-label fw-bold">Correo Electrónico:</label>
