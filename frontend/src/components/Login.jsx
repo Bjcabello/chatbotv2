@@ -85,11 +85,6 @@ function Login() {
             {message}
           </div>
         )}
-        {token && (
-          <div className="alert alert-success text-center mt-3" role="alert">
-            Token: {token}
-          </div>
-        )}
         <div className="text-center mt-3">
           <p>¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link></p>
         </div>
