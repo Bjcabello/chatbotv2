@@ -48,7 +48,7 @@ class MongoDBConnection:
             raise HTTPException(status_code=400, detail="Email is required")
         payload = {
             "sub": email,
-            "exp": datetime.now(timezone.utc) + timedelta(hours=24)
+            "exp": datetime.now(timezone.utc) + timedelta()
         }
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
 

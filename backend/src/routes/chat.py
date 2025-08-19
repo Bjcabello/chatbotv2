@@ -91,13 +91,13 @@ def chat(data: Chat):
         from langchain.prompts import PromptTemplate
 
         start_time = time.time()
-        llm = OllamaLLM(model="mistral", temperature=0)  # Cambiado a tinyllama (más ligero)
+        llm = OllamaLLM(model="gemma:2b", temperature=0)  
 
-        # Recuperar contexto base (personalidad, lógica, restricciones)
+       
         contexto_base = "\n".join(buscar_fragmentos_relevantes("contexto general", CHROMA_MARKDOWN_COLLECTION, category_filter="base", n_results=3))
-        print(f"Contexto base: {contexto_base[:200]}...")  # Depuración
+        print(f"Contexto base: {contexto_base[:200]}...")  
 
-        # Detectar si la pregunta está relacionada con un proceso
+        
         pregunta = data.pregunta.lower()
         proceso_relevante = None
         procesos = ["create_user", "update_user", "remove_user"]
@@ -106,20 +106,20 @@ def chat(data: Chat):
                 proceso_relevante = proceso
                 break
 
-        # Recuperar contexto del proceso si aplica
+        
         contexto_proceso = ""
         if proceso_relevante:
             contexto_proceso = "\n".join(buscar_fragmentos_relevantes(f"proceso {proceso_relevante}", CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3))
-            print(f"Contexto proceso: {contexto_proceso[:200]}...")  # Depuración
+            print(f"Contexto proceso: {contexto_proceso[:200]}...")  
 
-        # Recuperar contexto del PDF con detección genérica
+        
         contexto_pdf = ""
         if any(phrase in pregunta for phrase in ["en el pdf", "sobre el documento", "en el documento", "del pdf"]):
             pdf_content = buscar_fragmentos_relevantes(pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5)
             contexto_pdf = "\n".join(pdf_content)
             print(f"Contexto PDF: {contexto_pdf[:200]}...") 
 
-        # Combinar contextos
+        
         contexto_total = contexto_pdf if contexto_pdf else f"{contexto_base}\n\n{contexto_proceso}".strip()
         if not contexto_total:
             contexto_total = contexto_base
