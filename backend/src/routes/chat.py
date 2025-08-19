@@ -11,6 +11,8 @@ from pathlib import Path
 import shutil
 import os
 import time
+from fastapi import Depends
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -20,42 +22,41 @@ indexar_markdowns()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
-    email = mongo_db.verify_token(token)
-    return email
+    try:
+        email = mongo_db.verify_token(token)
+        return email
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
 @router.post("/register")
 def register(registration_request: AuthRequest):
     try:
+        created_at = datetime.now(timezone.utc)
         if mongo_db.insert_user(registration_request.email, registration_request.password):
-            update_data = {"email": registration_request.email, "password": registration_request.password}
-            update_data["user_id"] = registration_request.user_id
-            mongo_db.collection.update_one(
-                {"email": registration_request.email},
-                {"$set": update_data},
-                upsert=True
-            )
-            return {"message": f"Registro exitoso para {registration_request.email}.", "status": "success"}
-        raise HTTPException(status_code=400, detail="Usuario ya existe")
+            return {"message": f"Registro exitoso para {registration_request.email}.", "status": "success", "created_at": created_at.isoformat()}
+        raise HTTPException(status_code=409, detail="El email ya está registrado")
     except HTTPException as e:
         raise e
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 @router.post("/login")
 def login(login_request: LoginRequest):
     try:
         if mongo_db.verify_default_user(login_request.email, login_request.password):
             token = mongo_db.generate_token(login_request.email)
-            return {"message": f"Inicio sesión exitoso {login_request.email}.", "token": token, "status": "success"}
+            return {"message": f"Inicio de sesión exitoso para {login_request.email}.", "token": token, "status": "success"}
         user = mongo_db.find_user(login_request.email, login_request.password)
         if user:
             token = mongo_db.generate_token(login_request.email)
-            return {"message": f"Inicio sesión exitoso {login_request.email}. ", "token": token, "status": "success"}
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+            return {"message": f"Inicio de sesión exitoso para {login_request.email}.", "token": token, "status": "success"}
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
     except HTTPException as e:
         raise e
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 
 @router.post("/upload-pdf")

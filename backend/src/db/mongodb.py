@@ -7,16 +7,20 @@ from fastapi import HTTPException
 
 class MongoDBConnection:
     def __init__(self):
-        self.client = MongoClient(MONGO_URI)
         try:
+            self.client = MongoClient(MONGO_URI)
             self.client.admin.command('ping')
             self.db = self.client[MONGO_DB_NAME]
             self.collection = self.db[MONGO_COLLECTION_NAME]
+            self.collection.create_index("email", unique=True)
             self.secret_key = JWT_SECRET_KEY
             print("Conexión a MongoDB exitosa")
-        except Exception as e:
+        except ConnectionError as e:
             print(f"Error de conexión a MongoDB: {e}")
-            raise
+            raise HTTPException(status_code=500, detail="No se pudo conectar a la base de datos")
+        except Exception as e:
+            print(f"Error inesperado: {e}")
+            raise HTTPException(status_code=500, detail="Error interno del servidor")
 
     def __del__(self):
         self.close()
@@ -25,7 +29,8 @@ class MongoDBConnection:
         return self.client
 
     def close(self):
-        self.client.close()
+        if self.client:
+            self.client.close()
 
     def find_user(self, email: str, password: str):
         if not email or not password:
@@ -35,10 +40,14 @@ class MongoDBConnection:
     def insert_user(self, email: str, password: str):
         if not email or not password:
             return False
-        if self.collection.find_one({"email": email}):
-            return False
-        self.collection.insert_one({"email": email, "password": password})
-        return True
+        try:
+            created_at = datetime.now(timezone.utc)
+            self.collection.insert_one({"email": email, "password": password, "created_at": created_at})
+            return True
+        except Exception as e:
+            if "duplicate key error" in str(e).lower():
+                return False
+            raise HTTPException(status_code=500, detail="Error al insertar usuario")
 
     def verify_default_user(self, email: str, password: str):
         return email == DEFAULT_USERNAME and password == DEFAULT_PASSWORD
@@ -48,7 +57,7 @@ class MongoDBConnection:
             raise HTTPException(status_code=400, detail="Email is required")
         payload = {
             "sub": email,
-            "exp": datetime.now(timezone.utc) + timedelta()
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=30)
         }
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
 
