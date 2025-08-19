@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-function RegisterBox(){
-  const [user_name, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
+// function RegisterBox(){
 
-}
+// }
 export class LoginBox extends Component {
   constructor(props) {
     super(props);
@@ -13,9 +10,9 @@ export class LoginBox extends Component {
       password: ''
     };
   }
-if (user_name || password || email){
+// if (user_name || password || email){
 
-}
+// }
   handleInputChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };

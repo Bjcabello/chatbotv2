@@ -1,5 +1,5 @@
 import ChatBox from './components/ChatBox'
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import RegisterBox from './components/RegisterBox'
 
 // import Register from
@@ -7,15 +7,15 @@ function App() {
   return (
     <Router>
 
-<Routes>
-  <Route path="/" element={<RegisterBox/>}/>
-  <Route path="/register" element={<RegisterBox/>}/>
-  <Route path="/chat" element= {<ChatBox/>}/>
+      <Routes>
+        <Route path="/" element={<RegisterBox />} />
+        <Route path="/register" element={<RegisterBox />} />
+        <Route path="/chat" element={<ChatBox />} />
 
 
-</Routes>
+      </Routes>
 
-  </Router>
+    </Router>
   )
 }
 
