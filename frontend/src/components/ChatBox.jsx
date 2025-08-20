@@ -25,7 +25,7 @@ class ErrorBoundary extends Component {
 
 function ChatBox() {
   const [pregunta, setPregunta] = useState('');
-  const [respuesta, setRespuesta] = useState('Esperando respuesta...');
+  const [respuesta, setRespuesta] = useState();
   const [loading, setLoading] = useState(false);
   const [archivoPDF, setArchivoPDF] = useState(null);
   const { logout, isAuthenticated } = useContext(AuthContext);
@@ -131,13 +131,12 @@ function ChatBox() {
   console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
     <ErrorBoundary>
-      
       <div className="container-fluid bg-light bg-blue border border-3" style={{ maxWidth: '900px' }}>
         <div className="d-flex justify-content-end  mt-0 align-items-end text-center">
-          <i class="bi bi-box-arrow-in-right mt-0 " 
+          <i className="bi bi-box-arrow-in-right mt-0"
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
           </i>
-      </div>
+        </div>
         <h3 className="text-center mt-0">ChatBot Viadocs</h3>
         <div className="row justify-content-center mt-5">
           <div className="col-12 col-md-4 mb-3 d-flex flex-column align-items-center">
@@ -174,17 +173,34 @@ function ChatBox() {
           >
             {loading ? 'Cargando...' : 'Enviar'}
           </button>
-          
         </div>
         <div className="d-flex flex-column mt-3">
           <label className="form-label fw-bold">Respuesta:</label>
           <div className="alert alert-secondary overflow-auto" style={{ height: '200px' }}>
-            {respuesta || 'Esperando respuesta...'}
+            {loading
+              ? <span><TitubeandoDot /></span>
+              : (respuesta
+                  ? respuesta
+                  : (pregunta ? "...." : "")
+                )
+            }
           </div>
         </div>
       </div>
     </ErrorBoundary>
   );
+
+  
+  function TitubeandoDot() {
+    const [dots, setDots] = useState('');
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setDots((prev) => (prev.length < 3 ? prev + '.' : ''));
+      }, 400);
+      return () => clearInterval(interval);
+    }, []);
+    return <span>{dots}</span>;
+  }
 }
 
 export default ChatBox;
