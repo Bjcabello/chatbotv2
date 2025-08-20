@@ -5,7 +5,7 @@ from typing import Optional
 import secrets
 import jwt
 
-from src.models.users_models import UserRegister, UserLogin, UserPublic, ApiKeyPublic
+from src.models.users_models import UserRegister, UserLogin, ApiKeyPublic
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
 from src.security.hashing import hash_password, verify_password, hash_apikey
 from src.security.jwt import create_access_token, decode_access_token
@@ -58,7 +58,7 @@ def get_current_user_email(token: str = Depends(oauth2)) -> str:
 
 # ----------------- endpoints -----------------
 
-@router.post("/register", response_model=UserPublic)
+@router.post("/register")
 def register(payload: UserRegister):
     _, users, _ = _get_collections()
 
@@ -76,7 +76,7 @@ def register(payload: UserRegister):
     # Crear la API key del usuario y retornarla aparte (opcional)
     # Si quieres mostrarla aquí, puedes devolverla en otro campo
     # pero manteneremos la respuesta simple: info del usuario
-    return UserPublic(user_name=payload.user_name, email=payload.email)
+    return {"username ": payload.user_name, "email ": payload.email, "password": payload.password}
 
 @router.post("/login")
 def login(payload: UserLogin):

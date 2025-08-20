@@ -8,7 +8,7 @@ from typing import Optional
 class UserRegister(BaseModel):  # lo que envía el cliente al registrarse
     id: UUID  # UUID para el ID
     user_name: str
-    password: str  # En producción, esto sería un hash
+    password: str 
     email: EmailStr  # Validación de email con pydantic
 
 
@@ -18,8 +18,8 @@ class UserLogin(BaseModel):  # lo que envía el cliente al hacer login
 
 
 # Lo que devuelves al cliente (sin password)
-class UserPublic(BaseModel):  # lo que devuelves al registrar (sin password)
-    email: EmailStr
+# class UserPublic(BaseModel):  # lo que devuelves al registrar (sin password)
+#     email: EmailStr
 
 
 class ApiKeyPublic(BaseModel):  # lo que devuelves al rotar/crear API key
