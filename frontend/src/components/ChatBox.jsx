@@ -1,4 +1,3 @@
-// src/components/ChatBox.jsx
 import React, { useState, useEffect, useContext, Component } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -132,8 +131,14 @@ function ChatBox() {
   console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
     <ErrorBoundary>
-      <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
-        <h3 className="text-center">ChatBot Viadocs</h3>
+      
+      <div className="container-fluid bg-light bg-blue border border-3" style={{ maxWidth: '900px' }}>
+        <div className="d-flex justify-content-end  mt-0 align-items-end text-center">
+          <i class="bi bi-box-arrow-in-right mt-0 " 
+            onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
+          </i>
+      </div>
+        <h3 className="text-center mt-0">ChatBot Viadocs</h3>
         <div className="row justify-content-center mt-5">
           <div className="col-12 col-md-4 mb-3 d-flex flex-column align-items-center">
             <label className="form-label fw-bold">Subir PDF:</label>
@@ -160,27 +165,21 @@ function ChatBox() {
             onChange={(e) => setPregunta(e.target.value)}
           />
         </div>
-        <div className="text-center">
+        <div className="d-grid gap-2 d-md-flex justify-content-md-center">
           <button
             className="btn btn-outline-primary icon-link-hover"
-            style={{ width: '40%' }}
+            style={{ width: '40%', height: '20%' }}
             onClick={handleEnviar}
             disabled={loading}
           >
             {loading ? 'Cargando...' : 'Enviar'}
           </button>
-          <button
-            className="btn btn-outline-danger icon-link-hover mt-2"
-            style={{ width: '40%' }}
-            onClick={handleLogout}
-          >
-            Cerrar Sesión
-          </button>
+          
         </div>
         <div className="d-flex flex-column mt-3">
           <label className="form-label fw-bold">Respuesta:</label>
           <div className="alert alert-secondary overflow-auto" style={{ height: '200px' }}>
-            {respuesta || 'No hay respuesta aún'}
+            {respuesta || 'Esperando respuesta...'}
           </div>
         </div>
       </div>

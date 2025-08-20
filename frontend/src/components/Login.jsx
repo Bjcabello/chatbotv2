@@ -1,4 +1,3 @@
-// src/components/Login.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -55,7 +54,7 @@ function Login() {
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 bg-light">
-      <div className="container-fluid bg-blue border border-3" style={{ maxWidth: '900px', padding: '20px' }}>
+      <div className="container-fluid bg-blue border border-3" style={{ maxWidth: '40%', padding: '20px' }}>
         <h3 className="text-center mb-4">Inicio de Sesión</h3>
         <form onSubmit={handleLogin} className="row justify-content-center">
           <div className="col-12 mb-3">
