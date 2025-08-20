@@ -1,5 +1,5 @@
 // src/components/Login.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
@@ -9,10 +9,19 @@ function Login() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, isAuthenticated } = useContext(AuthContext);
+
+  useEffect(() => {
+    console.log('Login - useEffect - isAuthenticated:', isAuthenticated);
+    if (isAuthenticated) {
+      console.log('Login - Redirigiendo a /chatbox por isAuthenticated');
+      navigate('/chatbox', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log('Login - HandleLogin - Formulario enviado, email:', email, 'password:', password);
     if (!email || !password) {
       setMessage('Por favor, completa todos los campos.');
       return;
@@ -29,15 +38,16 @@ function Login() {
       });
 
       const data = await response.json();
-      if (data.status === 'success') {
-        login(data.token);
+      console.log('Login - Respuesta del backend:', data);
+      if (data.status === 'success' && data.token) {
         setMessage(data.message);
-        setTimeout(() => navigate('/chatbox', { replace: true }), 1000);
+        login(data.token);
       } else {
-        setMessage(data.error || 'Error al iniciar sesión.');
+        setMessage(data.error || 'Error: Credenciales inválidas.');
       }
     } catch (error) {
       setMessage(`Error: ${error.message}`);
+      console.log('Login - Error en fetch:', error);
     } finally {
       setLoading(false);
     }

@@ -1,11 +1,32 @@
-import React, { useState, useEffect, useContext } from 'react';
+// src/components/ChatBox.jsx
+import React, { useState, useEffect, useContext, Component } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { jwtDecode } from 'jwt-decode';
 
+class ErrorBoundary extends Component {
+  state = { hasError: false, error: null };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ color: 'red', padding: '20px' }}>
+          <h2>Error en ChatBox</h2>
+          <p>{this.state.error.message}</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ChatBox() {
   const [pregunta, setPregunta] = useState('');
-  const [respuesta, setRespuesta] = useState('');
+  const [respuesta, setRespuesta] = useState('Esperando respuesta...');
   const [loading, setLoading] = useState(false);
   const [archivoPDF, setArchivoPDF] = useState(null);
   const { logout, isAuthenticated } = useContext(AuthContext);
@@ -13,26 +34,28 @@ function ChatBox() {
   const token = localStorage.getItem('token') || '';
 
   useEffect(() => {
-    console.log('ChatBox mounted, isAuthenticated:', isAuthenticated, 'token:', token);
+    console.log('ChatBox - Mounted, isAuthenticated:', isAuthenticated, 'Token:', token);
+    if (!isAuthenticated) {
+      console.log('ChatBox - No autenticado, redirigiendo');
+      navigate('/login', { replace: true });
+      return;
+    }
     const checkTokenExpiration = () => {
       if (token && isAuthenticated) {
         try {
           const decodedToken = jwtDecode(token);
           const currentTime = Date.now() / 1000;
-          console.log('Token expira en:', new Date(decodedToken.exp * 1000).toISOString());
+          console.log('ChatBox - Token expira en:', new Date(decodedToken.exp * 1000));
           if (decodedToken.exp < currentTime) {
-            console.log('Token expirado en ChatBox');
+            console.log('ChatBox - Token expirado');
             logout();
             navigate('/login', { replace: true });
           }
         } catch (error) {
-          console.log('Error decodificando token en ChatBox:', error);
+          console.log('ChatBox - Error decodificando:', error);
           logout();
           navigate('/login', { replace: true });
         }
-      } else if (!isAuthenticated) {
-        console.log('No autenticado en ChatBox, redirigiendo');
-        navigate('/login', { replace: true });
       }
     };
 
@@ -46,26 +69,21 @@ function ChatBox() {
       alert('Selecciona un archivo PDF primero');
       return;
     }
-
     const formData = new FormData();
     formData.append('file', archivoPDF);
-
     try {
+      console.log('ChatBox - Enviando archivo PDF a /api/upload-pdf');
       const response = await fetch('http://localhost:8000/api/upload-pdf', {
         method: 'POST',
         body: formData,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       const data = await response.json();
-      if (data.error) {
-        alert('Error al subir: ' + data.error);
-      } else {
-        alert('✅ ' + data.mensaje);
-      }
+      console.log('ChatBox - Respuesta de /api/upload-pdf:', data);
+      if (data.error) alert('Error al subir: ' + data.error);
+      else alert('✅ ' + data.mensaje);
     } catch (error) {
+      console.log('ChatBox - Error en /api/upload-pdf:', error);
       alert('Error al subir el PDF: ' + error.message);
     }
   };
@@ -75,11 +93,10 @@ function ChatBox() {
       alert('Completa la pregunta');
       return;
     }
-
     setRespuesta('');
     setLoading(true);
-
     try {
+      console.log('ChatBox - Enviando pregunta a /api/chat, Pregunta:', pregunta);
       const response = await fetch('http://localhost:8000/api/chat', {
         method: 'POST',
         headers: {
@@ -88,17 +105,19 @@ function ChatBox() {
         },
         body: JSON.stringify({ pregunta }),
       });
-
+      if (!response.ok) throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
+      console.log('ChatBox - Respuesta de /api/chat iniciada');
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         const chunk = decoder.decode(value);
+        console.log('ChatBox - Chunk recibido:', chunk);
         setRespuesta((prev) => prev + chunk);
       }
     } catch (error) {
+      console.log('ChatBox - Error en /api/chat:', error);
       setRespuesta(`Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -110,63 +129,62 @@ function ChatBox() {
     navigate('/login', { replace: true });
   };
 
-  if (!isAuthenticated) {
-    return <div>Redirigiendo al login por falta de autenticación...</div>; // Fallback visible
-  }
-
+  console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
-    <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
-      <h3 className="text-center">ChatBot Viadocs</h3>
-      <div className="row justify-content-center mt-5">
-        <div className="col-12 col-md-4 mb-3 d-flex flex-column align-items-center">
-          <label className="form-label fw-bold">Subir PDF:</label>
+    <ErrorBoundary>
+      <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
+        <h3 className="text-center">ChatBot Viadocs</h3>
+        <div className="row justify-content-center mt-5">
+          <div className="col-12 col-md-4 mb-3 d-flex flex-column align-items-center">
+            <label className="form-label fw-bold">Subir PDF:</label>
+            <input
+              type="file"
+              accept=".pdf"
+              className="form-control"
+              style={{ width: '100%' }}
+              onChange={(e) => setArchivoPDF(e.target.files[0])}
+            />
+            <button className="btn btn-outline-success mt-2" style={{ width: '100%' }} onClick={handleSubirPDF}>
+              Subir PDF
+            </button>
+          </div>
+        </div>
+        <div className="m-5">
+          <label className="form-label fw-bold">Pregunta:</label>
           <input
-            type="file"
-            accept=".pdf"
+            type="text"
             className="form-control"
+            value={pregunta}
+            placeholder="Ingrese su pregunta"
             style={{ width: '100%' }}
-            onChange={(e) => setArchivoPDF(e.target.files[0])}
+            onChange={(e) => setPregunta(e.target.value)}
           />
-          <button className="btn btn-outline-success mt-2" style={{ width: '100%' }} onClick={handleSubirPDF}>
-            Subir PDF
+        </div>
+        <div className="text-center">
+          <button
+            className="btn btn-outline-primary icon-link-hover"
+            style={{ width: '40%' }}
+            onClick={handleEnviar}
+            disabled={loading}
+          >
+            {loading ? 'Cargando...' : 'Enviar'}
+          </button>
+          <button
+            className="btn btn-outline-danger icon-link-hover mt-2"
+            style={{ width: '40%' }}
+            onClick={handleLogout}
+          >
+            Cerrar Sesión
           </button>
         </div>
-      </div>
-      <div className="m-5">
-        <label className="form-label fw-bold">Pregunta:</label>
-        <input
-          type="text"
-          className="form-control"
-          value={pregunta}
-          placeholder="Ingrese su pregunta"
-          style={{ width: '100%' }}
-          onChange={(e) => setPregunta(e.target.value)}
-        />
-      </div>
-      <div className="text-center">
-        <button
-          className="btn btn-outline-primary icon-link-hover"
-          style={{ width: '40%' }}
-          onClick={handleEnviar}
-          disabled={loading}
-        >
-          {loading ? 'Cargando...' : 'Enviar'}
-        </button>
-        <button
-          className="btn btn-outline-danger icon-link-hover mt-2"
-          style={{ width: '40%' }}
-          onClick={handleLogout}
-        >
-          Cerrar Sesión
-        </button>
-      </div>
-      <div className="d-flex flex-column mt-3">
-        <label className="form-label fw-bold">Respuesta:</label>
-        <div className="alert alert-secondary overflow-auto" style={{ height: '200px' }}>
-          {respuesta}
+        <div className="d-flex flex-column mt-3">
+          <label className="form-label fw-bold">Respuesta:</label>
+          <div className="alert alert-secondary overflow-auto" style={{ height: '200px' }}>
+            {respuesta || 'No hay respuesta aún'}
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 

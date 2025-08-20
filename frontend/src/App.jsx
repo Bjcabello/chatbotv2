@@ -17,12 +17,12 @@ function App() {
           <Route
             path="/chatbox"
             element={
-              <ProtectedRoute>
+              
                 <ChatBox />
-              </ProtectedRoute>
+              
             }
           />
-          <Route path="/" element={<Navigate to="/Login" replace />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
