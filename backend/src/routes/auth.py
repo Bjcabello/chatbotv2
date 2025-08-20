@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 import secrets
 import jwt
+from uuid import UUID
 
 from src.models.users_models import UserRegister, UserLogin, ApiKeyPublic
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
@@ -78,6 +79,11 @@ def register(payload: UserRegister):
     # pero manteneremos la respuesta simple: info del usuario
     return {"username ": payload.user_name, "email ": payload.email, "password": payload.password}
 
+def find_user_existing(user)->str:
+    _, users, _ = _get_collections()
+    user = users
+    return user
+
 @router.post("/login")
 def login(payload: UserLogin):
     _, users, _ = _get_collections()
@@ -87,9 +93,24 @@ def login(payload: UserLogin):
 
     if not verify_password(payload.password, user["password"]):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    # print("print del user: ")
+    # print(user)
+    
+    # print("usando la funcion que hice: ")
+    # respuesta = find_user_existing(user)
+    
+    # print(f"la puta respuesta: {respuesta}")
+   
+
 
     # JWT por 3 minutos (requerido)
-    token = create_access_token(subject=str(user["email"]), minutes=3)
+    token = create_access_token(id_user= UUID(user["id"]),user_name=str(user["user_name"]), email=str(user["email"]), minutes=3)
+    # user = users.find_one({"user_name": payload.user_name})
+    
+    print(f"token imprimido: {token}")
+    decode_token = decode_access_token(token)
+    print(f"token descomprimido: {decode_token}")
+    # print(f"el nombre del usuario encontrado: {user}\n")
     return {"access_token": token, "token_type": "bearer", "expires_in_minutes": 3}
 
 @router.post("/apikey/rotate", response_model=ApiKeyPublic)
