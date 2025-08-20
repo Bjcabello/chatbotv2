@@ -1,65 +1,26 @@
-#backend/src/utils/mongo_db/create.py
-
 from pymongo.errors import OperationFailure
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
-from src.models.users_models import User
-from pydantic import ValidationError
 
-def validation_users():
-    try:
-        db = connect_to_mongodb()
-
-        # Definir el esquema de validación
-        validator = {
-            "$jsonSchema": {
-                "bsonType": "object",
-                "required": ["user_name", "password", "email", "createdAt"],  # Campos obligatorios
-                "properties": {
-                    "_id": {
-                        "bsonType": "binData",  # Para UUID
-                        "description": "Debe ser un UUID"
-                    },
-                    "user_name": {
-                        "bsonType": "string",
-                        "description": "Debe ser una cadena y es obligatorio"
-                    },
-                    "password": {
-                        "bsonType": "string",
-                        "description": "Debe ser una cadena y es obligatorio"
-                    },
-                    "email": {
-                        "bsonType": "string",
-                        "description": "Debe ser una cadena y es obligatorio"
-                    }
-                }
-            }
-        }
-
-        # Crear o actualizar la colección con el validador
-        db.command("collMod", "users", validator=validator)
-        print("Esquema de validación aplicado a la colección 'users'")
-
-    except OperationFailure as e:
-        raise Exception(f"Error al configurar la colección: {e}")
-    except Exception as e:
-        raise Exception(f"Error inesperado: {e}")
-    
-
-
-def ensure_indexes(ttl_seconds: int | None = None):
+def ensure_indexes(ttl_seconds_users: int | None = None):
     """
-    Crea índices necesarios:
-    - email único
-    - TTL sobre createdAt (si ttl_seconds no es None)
+    Crea índices:
+      - users.email único
+      - users.createdAt TTL (si se especifica ttl_seconds_users)
+      - apikeys.user_email index
+      - apikeys.key_hash único
     """
-    db, collection = connect_to_mongodb()
+    db, users = connect_to_mongodb()
+    apikeys = db["apikeys"]
 
-    # Único por email
-    collection.create_index("email", unique=True)
+    # users: email único
+    users.create_index("email", unique=True)
 
-    # TTL (si quieres que caduque)
-    if ttl_seconds is not None:
-        # Nota: TTL funciona sobre un campo DATE.
-        collection.create_index("createdAt", expireAfterSeconds=int(ttl_seconds))
+    # users: TTL opcional (si quieres que la cuenta caduque y se borre sola)
+    if ttl_seconds_users is not None:
+        users.create_index("createdAt", expireAfterSeconds=int(ttl_seconds_users))
 
-    print("Índices garantizados (email único, TTL opcional).")
+    # apikeys: índices
+    apikeys.create_index("user_email")
+    apikeys.create_index("key_hash", unique=True)
+
+    print("Índices garantizados: users(email, TTL opcional) y apikeys(user_email, key_hash único).")

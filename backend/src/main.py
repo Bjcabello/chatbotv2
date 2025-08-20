@@ -20,7 +20,7 @@ app.add_middleware(
 
 
 # Asegura índices (TTL de 2 horas; cámbialo como quieras)
-ensure_indexes(ttl_seconds=7200)
+# ensure_indexes(ttl_seconds=7200)
 
 characters = "abcdefghijklmnopqrstuvxywzABCDEFGHIJKLMNOPQRSTUVWYWZ"
 # Ejecutar la indexación de los markdowns al arrancar
