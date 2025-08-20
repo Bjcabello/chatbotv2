@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+// src/components/Login.jsx
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,18 +24,15 @@ function Login() {
     try {
       const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
       if (data.status === 'success') {
+        login(data.token);
         setMessage(data.message);
-        setToken(data.token);
-        localStorage.setItem('token', data.token);
-        setTimeout(() => navigate('/chat'), 1000);
+        setTimeout(() => navigate('/chatbox', { replace: true }), 1000);
       } else {
         setMessage(data.error || 'Error al iniciar sesión.');
       }
@@ -80,11 +79,7 @@ function Login() {
             </button>
           </div>
         </form>
-        {message && (
-          <div className="alert alert-info text-center mt-3" role="alert">
-            {message}
-          </div>
-        )}
+        {message && <div className="alert alert-info text-center mt-3" role="alert">{message}</div>}
         <div className="text-center mt-3">
           <p>¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link></p>
         </div>

@@ -1,3 +1,4 @@
+// src/Register.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -20,9 +21,7 @@ function Register() {
     try {
       const response = await fetch('http://localhost:8000/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
@@ -78,11 +77,7 @@ function Register() {
           </button>
         </div>
       </form>
-      {message && (
-        <div className="alert alert-info text-center mt-3" role="alert">
-          {message}
-        </div>
-      )}
+      {message && <div className="alert alert-info text-center mt-3" role="alert">{message}</div>}
       <div className="text-center mt-3">
         <p>¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
       </div>
