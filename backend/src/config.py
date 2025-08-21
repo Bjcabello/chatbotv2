@@ -1,4 +1,5 @@
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent
 BASE_CONTEXT = BASE_DIR / "context" / "base"
@@ -15,10 +16,12 @@ CHROMA_DB_PATH = "./chroma_db"
 
 
 from decouple import config
+import os
+load_dotenv()
 
 MONGO_URI = config('MONGO_URI')
 MONGO_DB_NAME = config('MONGO_DB_NAME')
 MONGO_COLLECTION_NAME = config('MONGO_COLLECTION_NAME')
-JWT_SECRET_KEY = config('JWT_SECRET_KEY')
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", os.urandom(32).hex())
 DEFAULT_USERNAME = config('DEFAULT_USERNAME')
 DEFAULT_PASSWORD = config('DEFAULT_PASSWORD')
