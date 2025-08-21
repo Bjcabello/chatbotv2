@@ -36,13 +36,20 @@ function Login() {
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) throw new Error('Credenciales inválidas');
       const data = await response.json();
       console.log('Login - Respuesta del backend:', data);
-      if (data.status === 'success' && data.token) {
-        setMessage(data.message);
-        login(data.token);
+      // Ajusta para usar access_token y user_id
+      const token = data.access_token;
+      const userId = data.user_id; // Asegúrate de que sea uuid.UUID o string
+      if (token) {
+        setMessage('Inicio de sesión exitoso');
+        login(token, userId); // Pasa userId al AuthContext si lo necesitas
+        localStorage.setItem('token', token);
+        localStorage.setItem('userId', userId);
+        navigate('/chatbox', { replace: true });
       } else {
-        setMessage(data.error || 'Error: Credenciales inválidas.');
+        setMessage('Error: No se recibió token.');
       }
     } catch (error) {
       setMessage(`Error: ${error.message}`);

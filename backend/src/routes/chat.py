@@ -1,7 +1,8 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.models.chat import Chat
 from fastapi import APIRouter, HTTPException, Depends, status
-from src.models.login import AuthRequest, LoginRequest
+from src.models.login import AuthRequest, LoginRequest, TokenResponse
+from pydantic import BaseModel
 from src.db.mongodb import mongo_db
 from fastapi.security import OAuth2PasswordBearer
 from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown
@@ -10,12 +11,12 @@ from src.config import CHROMA_MARKDOWN_COLLECTION, CHROMA_PDF_COLLECTION
 from pathlib import Path
 import shutil
 import os
+import uuid
 import time
 from fastapi import Depends
 from datetime import datetime, timezone
 
 router = APIRouter()
-
 
 indexar_markdowns()
 
@@ -23,40 +24,49 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        email = mongo_db.verify_token(token)
-        return email
+        user_id = mongo_db.verify_token(token)
+        return user_id
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(status_code=401, detail="Token inválido o expirado")
 
-@router.post("/register")
+@router.post("/register", response_model=TokenResponse)
 def register(registration_request: AuthRequest):
     try:
+        print(f"Registrando usuario: {registration_request.email}")
         created_at = datetime.now(timezone.utc)
-        if mongo_db.insert_user(registration_request.email, registration_request.password):
-            return {"message": f"Registro exitoso para {registration_request.email}.", "status": "success", "created_at": created_at.isoformat()}
+        user_id = uuid.uuid4()
+        print(f"Generado user_id: {user_id}")
+        if mongo_db.insert_user(user_id, registration_request.email, registration_request.password, created_at):
+            print("Usuario insertado exitosamente")
+            token = mongo_db.generate_token(str(user_id))
+            print(f"Token generado: {token[:20]}...")
+            return {"access_token": token, "token_type": "bearer", "user_id": user_id}
         raise HTTPException(status_code=409, detail="El email ya está registrado")
     except HTTPException as e:
+        print(f"HTTPException en /register: {str(e)}")
         raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error interno del servidor")
-
-@router.post("/login")
+        print(f"Error inesperado en /register: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
+    
+@router.post("/login", response_model=TokenResponse)
 def login(login_request: LoginRequest):
     try:
         if mongo_db.verify_default_user(login_request.email, login_request.password):
-            token = mongo_db.generate_token(login_request.email)
-            return {"message": f"Inicio de sesión exitoso para {login_request.email}.", "token": token, "status": "success"}
+            user_id = "default_user_id"
+            token = mongo_db.generate_token(user_id)
+            return {"access_token": token, "token_type": "bearer", "user_id": uuid.UUID(user_id)}
         user = mongo_db.find_user(login_request.email, login_request.password)
         if user:
-            token = mongo_db.generate_token(login_request.email)
-            return {"message": f"Inicio de sesión exitoso para {login_request.email}.", "token": token, "status": "success"}
+            token = mongo_db.generate_token(str(user["user_id"]))
+            return {"access_token": token, "token_type": "bearer", "user_id": user["user_id"]}
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error interno del servidor")
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
 
 @router.post("/upload-pdf")
@@ -75,7 +85,7 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
 def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
     try:
         texto = leer_pdf(ruta)
-        print(f"Texto extraído del PDF {nombre_archivo}: {texto[:200]}...")  # Depuración
+        print(f"Texto extraído del PDF {nombre_archivo}: {texto[:200]}...")  
         if texto.strip():
             indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_PDF_COLLECTION, categoria="pdf")
     except Exception as error:

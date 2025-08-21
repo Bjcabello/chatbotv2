@@ -24,13 +24,16 @@ function Register() {
         body: JSON.stringify({ email, password }),
       });
 
+      if (!response.ok) throw new Error('Error al registrar');
       const data = await response.json();
-      if (data.status === 'success') {
-        setMessage(data.message);
+      console.log('Register - Respuesta del backend:', data);
+      if (data.access_token) {
+        setMessage('Registro exitoso');
         setEmail('');
         setPassword('');
+        // Aquí podrías redirigir al login o guardar el token si el backend lo devuelve
       } else {
-        setMessage(data.error || 'Error al registrar.');
+        setMessage(data.detail || 'Error al registrar.');
       }
     } catch (error) {
       setMessage(`Error: ${error.message}`);

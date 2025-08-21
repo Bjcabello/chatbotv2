@@ -1,71 +1,40 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
+
+  const login = (token, userId) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('userId', userId);
+    setIsAuthenticated(true);
+    setUserId(userId);
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    setIsAuthenticated(false);
+    setUserId(null);
+  };
 
   useEffect(() => {
-    const initializeAuth = () => {
+    const checkToken = () => {
       const token = localStorage.getItem('token');
-      console.log('AuthContext - Inicialización - Token:', token);
       if (token) {
-        try {
-          const decodedToken = jwtDecode(token);
-          const currentTime = Date.now() / 1000;
-          const isValid = decodedToken.exp > currentTime;
-          console.log('AuthContext - Inicialización - Token válido:', isValid);
-          setIsAuthenticated(isValid);
-        } catch (error) {
-          console.log('AuthContext - Inicialización - Error:', error);
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-        }
+        // Aquí podrías usar jwt-decode para verificar expiración
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
       }
     };
-
-    initializeAuth();
-
-    const checkTokenExpiration = () => {
-      const token = localStorage.getItem('token');
-      console.log('AuthContext - Chequeo - Token:', token);
-      if (token) {
-        try {
-          const decodedToken = jwtDecode(token);
-          const currentTime = Date.now() / 1000;
-          if (decodedToken.exp < currentTime) {
-            console.log('AuthContext - Chequeo - Token expirado');
-            localStorage.removeItem('token');
-            setIsAuthenticated(false);
-          }
-        } catch (error) {
-          console.log('AuthContext - Chequeo - Error:', error);
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-        }
-      }
-    };
-
-    const interval = setInterval(checkTokenExpiration, 60000);
-    return () => clearInterval(interval);
+    checkToken();
   }, []);
 
-  const login = useCallback((token) => {
-    localStorage.setItem('token', token);
-    setIsAuthenticated(true);
-    console.log('AuthContext - Login - isAuthenticated actualizado a:', true, 'Token:', token);
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem('token');
-    setIsAuthenticated(false);
-    console.log('AuthContext - Logout - isAuthenticated actualizado a:', false);
-  }, []);
-
-  console.log('AuthContext - Render - isAuthenticated:', isAuthenticated);
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, userId }}>
       {children}
     </AuthContext.Provider>
   );
