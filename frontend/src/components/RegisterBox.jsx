@@ -4,13 +4,13 @@ import { Link } from 'react-router-dom';
 function RegisterBox() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [userName, setUserName] = useState('');
+  const [user_name, setUser_name] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!email || !password || !userName) {
+    if (!email || !password || !user_name) {
       setMessage('Por favor, completa todos los campos.');
       return;
     }
@@ -22,13 +22,13 @@ function RegisterBox() {
       const response = await fetch('http://localhost:8000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, userName }),
+        body: JSON.stringify({ email, password, user_name }),
       });
 
       const data = await response.json();
       if (data.status === 'success') {
         setMessage(data.message);
-        setUserName('');
+        setUser_name('');
         setPassword('');
         setEmail('');
       } else {
@@ -50,10 +50,10 @@ function RegisterBox() {
           <input
             type="string"
             className="form-control"
-            value={userName}
+            value={user_name}
             placeholder="Ingrese su nombre"
             
-            onChange={(e) => setUserName(e.target.value)}
+            onChange={(e) => setUser_name(e.target.value)}
           />
         </div>
         <div className="form-label fw-bold">

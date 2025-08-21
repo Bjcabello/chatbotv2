@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './css/login.css'
 function LoginBox() {
     const [email, setEmail] = useState('')
-    const [userName, setUserName] = useState('')
+    // const [userName, setUserName] = useState('')
     const [password, setPassword] = useState('')
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -11,7 +11,7 @@ function LoginBox() {
 
 
     const handleLogin = async (e) => {
-        if (!email || !password || !userName) {
+        if (!email || !password ) {
             setMessage('Por favor, completa todos los campos.');
             return;
 
@@ -21,7 +21,7 @@ function LoginBox() {
             const response = await fetch('http://localhost:8000/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, userName }),
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await response.json();
@@ -45,16 +45,6 @@ function LoginBox() {
         <div className="login-fondo container-fluid bg-blue p-4" style={{ maxWidth: '400px', marginTop: '130px' }}>
             <h3 class="text-center ">login</h3>
             <form onSubmit={handleLogin} className="row justify-content-center">
-                <div className="col-12 mb-3"><br />
-                    <label className="form-label fw-bold">nombre de usuario:</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        value={userName}
-                        placeholder="Ingrese su nombre"
-                        onChange={(e) => setUserName(e.target.value)}
-                    />
-                </div>
                 <div>
                     <label className="form-label fw-bold">Correo Electrónico:</label>
                     <input
@@ -64,7 +54,7 @@ function LoginBox() {
                         placeholder="Ingrese su email"
                         onChange={(e) => setEmail(e.target.value)}
                     />
-                </div>
+                </div><br />
                 <div className="col-12 mb-3">
                     <label className="form-label fw-bold">Contraseña:</label>
                     <input

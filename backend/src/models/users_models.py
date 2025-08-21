@@ -25,4 +25,5 @@ class UserLogin(BaseModel):  # lo que envía el cliente al hacer login
 
 
 class ApiKeyPublic(BaseModel):  # lo que devuelves al rotar/crear API key
-    api_key: str  # se muestra solo al crearse/rotarse
+    api_key: str  # se muestra solo al crearse/rotarse4
+    #tiempo que expira

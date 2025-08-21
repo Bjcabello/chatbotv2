@@ -22,7 +22,7 @@ def get_chroma_vectorstore(collection_name: str):
         persist_directory=CHROMA_DB_PATH
     )
 
-def dividir_en_chunks(texto: str, chunk_size=400, chunk_overlap=40):
+def dividir_en_chunks(texto: str, chunk_size=600, chunk_overlap=200):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap
