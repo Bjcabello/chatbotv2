@@ -10,7 +10,7 @@ function RegisterBox() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!email || !password || userName) {
+    if (!email || !password || !userName) {
       setMessage('Por favor, completa todos los campos.');
       return;
     }
@@ -42,7 +42,7 @@ function RegisterBox() {
   };
 
   return (
-    <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
+    <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '650px' }}>
       <h3 className="text-center">Registro</h3>
       <form onSubmit={handleRegister} className="row justify-content-center mt-5">
         <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
