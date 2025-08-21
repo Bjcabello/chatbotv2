@@ -109,16 +109,16 @@ def login(payload: UserLogin):
     if not verify_password(payload.password, user["password"]):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-    users.find_one({"id": payload.user_name})
+    # users.find_one({"id": payload.user_name})
 
-    print(f"name del usuario para el login: {payload.user_name}")
+    # print(f"name del usuario para el login: {payload.user_name}")
     
     # id_usuario= users.find_one({"id": payload.id})
     # print(f"id del usuario: {id_usuario}")
     
     token = create_access_token(
         # id_user=user_id,
-        user_name=str(user["user_name"]),
+        # user_name=str(user["user_name"]),
         email=str(user["email"]),
         minutes=3,
     )

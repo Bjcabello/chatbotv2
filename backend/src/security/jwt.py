@@ -23,11 +23,11 @@ JWT_SECRET = "JWT_SECRET"
 JWT_ALGORITHM = "HS256"
 
 
-def create_access_token( user_name: str, email: str, minutes: int = 3) -> str:
+def create_access_token( email: str, minutes: int = 3) -> str:
     exp = datetime.now(timezone.utc) + timedelta(minutes=minutes)
     payload = {
         # "id_user": id_user,
-        "user_name": user_name,
+        # "user_name": user_name,
         "email": email,
         "exp": exp,
     }

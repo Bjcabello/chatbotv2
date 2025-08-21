@@ -1,5 +1,6 @@
 .login-fondo {
-  background-color: rgba(238, 236, 235, 0.952); /* Un color gris claro */
-  border-color: rgb(124, 122, 122);
+  /*background-color: rgba(228, 228, 228, 0.845); /* Un color gris claro */
+  background-color: rgb(246, 246, 246);
+  border-color: rgb(222, 222, 222);
   border-style:solid;
 }

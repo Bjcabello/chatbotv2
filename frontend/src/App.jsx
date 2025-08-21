@@ -13,9 +13,8 @@ function App() {
         <Route path="/register" element={<RegisterBox />} />
         <Route path="/chat" element={<ChatBox />} />
         <Route path="/login" element={<LoginBox />} />
-
-
       </Routes>
+
 
     </Router>
   )

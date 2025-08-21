@@ -19,7 +19,7 @@ function RegisterBox() {
     setMessage('');
 
     try {
-      const response = await fetch('http://localhost:5173/auth/register', {
+      const response = await fetch('http://localhost:8000/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, userName }),
@@ -28,7 +28,7 @@ function RegisterBox() {
       const data = await response.json();
       if (data.status === 'success') {
         setMessage(data.message);
-        setEmail('');
+        setUserName('');
         setPassword('');
         setEmail('');
       } else {
@@ -42,39 +42,39 @@ function RegisterBox() {
   };
 
   return (
-    <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '650px' }}>
+    <div className="container-fluid bg-light bg-blue border border-4 p-4" style={{ maxWidth: '400px' , marginTop: '130px'}}>
       <h3 className="text-center">Registro</h3>
       <form onSubmit={handleRegister} className="row justify-content-center mt-5">
-        <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
+        <div className="form-label fw-bold">
           <label className="form-label fw-bold">Nombre del usuario:</label>
           <input
             type="string"
             className="form-control"
             value={userName}
             placeholder="Ingrese su nombre"
-            style={{ width: '55%' }}
+            
             onChange={(e) => setUserName(e.target.value)}
           />
         </div>
-        <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
+        <div className="form-label fw-bold">
           <label className="form-label fw-bold">Correo Electrónico:</label>
           <input
             type="email"
             className="form-control"
             value={email}
             placeholder="Ingrese su email"
-            style={{ width: '55%' }}
+            
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
+        <div className="form-label fw-bold">
           <label className="form-label fw-bold">Contraseña:</label>
           <input
             type="password"
             className="form-control"
             value={password}
             placeholder="Ingrese su contraseña"
-            style={{ width: '55%' }}
+            // style={{ width: '55%' }}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>

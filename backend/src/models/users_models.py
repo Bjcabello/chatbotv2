@@ -14,7 +14,7 @@ class UserRegister(BaseModel):  # lo que envía el cliente al registrarse
 
 class UserLogin(BaseModel):  # lo que envía el cliente al hacer login
     id: UUID
-    user_name: str
+    # user_name: str
     email: EmailStr
     password: str
 

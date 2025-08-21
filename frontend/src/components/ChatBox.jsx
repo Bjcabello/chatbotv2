@@ -171,7 +171,7 @@ const handleSubirPDF = async () => {
 
         <div className='d-flex flex-column mt-3s'>
           <label className='form-label fw-bold'>Respuesta:</label>
-          <div  className='alert alert-secondary overflow-auto' style={{height:"200px"}}>
+          <div  className='alert alert-secondary overflow-auto' style={{height:"400px"}}>
             {respuesta}
           </div>
         </div>
