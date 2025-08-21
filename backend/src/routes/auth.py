@@ -16,10 +16,12 @@ oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login")  # para Swagger
 
 # ----------------- helpers -----------------
 
+
 def _get_collections():
     db, users = connect_to_mongodb()
     apikeys = db["apikeys"]
     return db, users, apikeys
+
 
 def _create_and_store_apikey_for(email: str) -> str:
     """
@@ -35,19 +37,23 @@ def _create_and_store_apikey_for(email: str) -> str:
     # Eliminamos API keys antiguas del mismo usuario (si quieres una sola activa)
     apikeys.delete_many({"user_email": email})
 
-    apikeys.insert_one({
-        "user_email": email,
-        "key_hash": key_hash,
-        "createdAt": datetime.now(timezone.utc)
-    })
+    apikeys.insert_one(
+        {
+            "user_email": email,
+            "key_hash": key_hash,
+            "createdAt": datetime.now(timezone.utc),
+        }
+    )
     return new_key
 
+
 # ----------------- dependencias -----------------
+
 
 def get_current_user_email(token: str = Depends(oauth2)) -> str:
     try:
         payload = decode_access_token(token)
-        print("payload decodficicado: ",payload)
+        print("payload decodficicado: ", payload)
         email: Optional[str] = payload.get("sub")
         if not email:
             raise HTTPException(status_code=401, detail="Token inválido (sin sub)")
@@ -57,7 +63,9 @@ def get_current_user_email(token: str = Depends(oauth2)) -> str:
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Token inválido")
 
+
 # ----------------- endpoints -----------------
+
 
 @router.post("/register")
 def register(payload: UserRegister):
@@ -70,48 +78,58 @@ def register(payload: UserRegister):
         "user_name": payload.user_name,
         "email": payload.email,
         "password": hash_password(payload.password),  # hash
-        "createdAt": datetime.now(timezone.utc)
+        "createdAt": datetime.now(timezone.utc),
     }
     users.insert_one(user_doc)
 
     # Crear la API key del usuario y retornarla aparte (opcional)
     # Si quieres mostrarla aquí, puedes devolverla en otro campo
-    # pero manteneremos la respuesta simple: info del usuario
-    return {"username ": payload.user_name, "email ": payload.email, "password": payload.password}
 
-def find_user_existing(user)->str:
+    return {
+        "username ": payload.user_name,
+        "email ": payload.email,
+        "password": payload.password,
+    }
+
+
+def find_user_existing(user) -> str:
     _, users, _ = _get_collections()
     user = users
     return user
+
 
 @router.post("/login")
 def login(payload: UserLogin):
     _, users, _ = _get_collections()
     user = users.find_one({"email": payload.email})
+    print(f"email encontrado para  el login: {payload.email}")
     if not user:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
     if not verify_password(payload.password, user["password"]):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-    # print("print del user: ")
-    # print(user)
-    
-    # print("usando la funcion que hice: ")
-    # respuesta = find_user_existing(user)
-    
-    # print(f"la puta respuesta: {respuesta}")
-   
 
+    users.find_one({"id": payload.user_name})
 
-    # JWT por 3 minutos (requerido)
-    token = create_access_token(id_user= UUID(user["id"]),user_name=str(user["user_name"]), email=str(user["email"]), minutes=3)
+    print(f"name del usuario para el login: {payload.user_name}")
+    
+    # id_usuario= users.find_one({"id": payload.id})
+    # print(f"id del usuario: {id_usuario}")
+    
+    token = create_access_token(
+        # id_user=user_id,
+        user_name=str(user["user_name"]),
+        email=str(user["email"]),
+        minutes=3,
+    )
     # user = users.find_one({"user_name": payload.user_name})
-    
+
     print(f"token imprimido: {token}")
     decode_token = decode_access_token(token)
     print(f"token descomprimido: {decode_token}")
     # print(f"el nombre del usuario encontrado: {user}\n")
     return {"access_token": token, "token_type": "bearer", "expires_in_minutes": 3}
+
 
 @router.post("/apikey/rotate", response_model=ApiKeyPublic)
 def rotate_api_key(current_email: str = Depends(get_current_user_email)):
@@ -121,6 +139,7 @@ def rotate_api_key(current_email: str = Depends(get_current_user_email)):
     """
     new_plain_key = _create_and_store_apikey_for(current_email)
     return ApiKeyPublic(api_key=new_plain_key)
+
 
 @router.get("/apikey/exists")
 def has_api_key(current_email: str = Depends(get_current_user_email)):

@@ -1,178 +1,100 @@
-import React, { Component } from 'react';
-// function RegisterBox(){
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-// }
-export class LoginBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: '',
-      password: ''
-    };
-  }
-// if (user_name || password || email){
+function RegisterBox() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [userName, setUserName] = useState('');
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-// }
-  handleInputChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  handleLogin = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', this.state);
-    // Add your login logic here
+    if (!email || !password || userName) {
+      setMessage('Por favor, completa todos los campos.');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const response = await fetch('http://localhost:5173/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, userName }),
+      });
+
+      const data = await response.json();
+      if (data.status === 'success') {
+        setMessage(data.message);
+        setEmail('');
+        setPassword('');
+        setEmail('');
+      } else {
+        setMessage(data.error || 'Error al registrar.');
+      }
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  render() {
-    return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your username"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your password"
-            />
-          </div>
-          <button
-            onClick={this.handleLogin}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Login
-          </button>
-          <p className="text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <button
-              onClick={() => this.props.setIsLogin(false)}
-              className="text-blue-600 hover:underline"
-            >
-              Register
-            </button>
-          </p>
+  return (
+    <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
+      <h3 className="text-center">Registro</h3>
+      <form onSubmit={handleRegister} className="row justify-content-center mt-5">
+        <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
+          <label className="form-label fw-bold">Nombre del usuario:</label>
+          <input
+            type="string"
+            className="form-control"
+            value={userName}
+            placeholder="Ingrese su nombre"
+            style={{ width: '55%' }}
+            onChange={(e) => setUserName(e.target.value)}
+          />
         </div>
-      </div>
-    );
-  }
-}
-
-export class RegisterBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      username: '',
-      email: '',
-      password: ''
-    };
-  }
-
-  handleInputChange = (e) => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  handleRegister = (e) => {
-    e.preventDefault();
-    console.log('Register attempt:', this.state);
-    // Add your register logic here
-  };
-
-  render() {
-    return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4 text-center">Register</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your username"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={this.state.email}
-              onChange={this.handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your email"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleInputChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter your password"
-            />
-          </div>
-          <button
-            onClick={this.handleRegister}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Register
-          </button>
-          <p className="text-center text-sm text-gray-600">
-            Already have an account?{' '}
-            <button
-              onClick={() => this.props.setIsLogin(true)}
-              className="text-blue-600 hover:underline"
-            >
-              Login
-            </button>
-          </p>
+        <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
+          <label className="form-label fw-bold">Correo Electrónico:</label>
+          <input
+            type="email"
+            className="form-control"
+            value={email}
+            placeholder="Ingrese su email"
+            style={{ width: '55%' }}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
+        <div className="col-12 col-md-6 mb-3 d-flex flex-column align-items-center">
+          <label className="form-label fw-bold">Contraseña:</label>
+          <input
+            type="password"
+            className="form-control"
+            value={password}
+            placeholder="Ingrese su contraseña"
+            style={{ width: '55%' }}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div className="text-center">
+          <button
+            className="btn btn-outline-primary icon-link-hover"
+            style={{ width: '40%' }}
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Registrando...' : 'Registrarse'}
+          </button>
+        </div>
+      </form>
+      {message && <div className="alert alert-info text-center mt-3" role="alert">{message}</div>}
+      <div className="text-center mt-3">
+        <p>¿Ya tienes cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
-export class AuthBox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLogin: true
-    };
-  }
-
-  setIsLogin = (value) => {
-    this.setState({ isLogin: value });
-  };
-
-  render() {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        {this.state.isLogin ? (
-          <LoginBox setIsLogin={this.setIsLogin} />
-        ) : (
-          <RegisterBox setIsLogin={this.setIsLogin} />
-        )}
-      </div>
-    );
-  }
-}
-
-export default AuthBox;
+export default RegisterBox;
