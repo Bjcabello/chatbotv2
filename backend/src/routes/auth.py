@@ -138,7 +138,7 @@ def login(payload: UserLogin):
     decode_token = decode_access_token(token)
     print(f"token descomprimido: {decode_token}")
     # print(f"el nombre del usuario encontrado: {user}\n")
-    return {"access_token": token, "token_type": "bearer","id del usuario": user_id,"expires_in_minutes": 3}
+    return {"access_token": token, "token_type": "bearer","expires_in_minutes": 3}
 
 
 @router.post("/apikey/rotate", response_model=ApiKeyPublic)

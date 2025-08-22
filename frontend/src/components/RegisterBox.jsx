@@ -24,16 +24,31 @@ function RegisterBox() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, user_name }),
       });
+      console.log(`el response: ${response}`)
 
+      if (!response.ok) throw new Error('fallo al registrar')
       const data = await response.json();
-      if (data.status === 'success') {
-        setMessage(data.message);
-        setUser_name('');
-        setPassword('');
-        setEmail('');
-      } else {
-        setMessage(data.error || 'Error al registrar.');
-      }
+
+      // console.log('Register - Respuesta del backend:', data);
+      // if (data.access_token) {
+      //   setMessage('Registro exitoso');
+      //   setEmail('');
+      //   setPassword('');
+      //   setUser_name('')
+      //   // Aquí podrías redirigir al login o guardar el token si el backend lo devuelve
+      // } else {
+      //   setMessage(data.detail || 'Error al registrar.');
+      // }
+
+      // const data = await response.json();
+      // if (data.status === 'success') {
+      //   setMessage(data.message);
+      //   setUser_name('');
+      //   setPassword('');
+      //   setEmail('');
+      // } else {
+      //   setMessage(data.error || 'Error al registrar.');
+      // }
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     } finally {
@@ -42,7 +57,7 @@ function RegisterBox() {
   };
 
   return (
-    <div className="container-fluid bg-light bg-blue border border-4 p-4" style={{ maxWidth: '400px' , marginTop: '130px'}}>
+    <div className="container-fluid bg-light bg-blue border border-4 p-4" style={{ maxWidth: '400px', marginTop: '130px' }}>
       <h3 className="text-center">Registro</h3>
       <form onSubmit={handleRegister} className="row justify-content-center mt-5">
         <div className="form-label fw-bold">
@@ -52,7 +67,7 @@ function RegisterBox() {
             className="form-control"
             value={user_name}
             placeholder="Ingrese su nombre"
-            
+
             onChange={(e) => setUser_name(e.target.value)}
           />
         </div>
@@ -63,7 +78,7 @@ function RegisterBox() {
             className="form-control"
             value={email}
             placeholder="Ingrese su email"
-            
+
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
