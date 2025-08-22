@@ -43,7 +43,7 @@ function LoginBox() {
     }
     return (
         <div className="login-fondo container-fluid bg-blue p-4" style={{ maxWidth: '400px', marginTop: '130px' }}>
-            <h3 class="text-center ">login</h3>
+            <h3 className="text-center ">login</h3>
             <form onSubmit={handleLogin} className="row justify-content-center">
                 <div>
                     <label className="form-label fw-bold">Correo Electrónico:</label>

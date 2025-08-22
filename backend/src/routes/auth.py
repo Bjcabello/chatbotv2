@@ -5,7 +5,7 @@ from typing import Optional
 import secrets
 import jwt
 import uuid
-
+import time
 from src.models.users_models import UserRegister, UserLogin, ApiKeyPublic
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
 from src.security.hashing import hash_password, verify_password, hash_apikey
@@ -134,9 +134,25 @@ def login(payload: UserLogin):
     )
     # user = users.find_one({"user_name": payload.user_name})
 
+    
+
     print(f"token imprimido: {token}")
     decode_token = decode_access_token(token)
     print(f"token descomprimido: {decode_token}")
+    # Decodificar sin verificar exp (para leerlo)
+    # exp_time = datetime.datetime.fromtimestamp(decode_token["exp"], tz=datetime.timezone.utc)
+    # # --- Contador en vivo ---
+    # while True:
+    #     now = datetime.datetime.now(datetime.timezone.utc)
+    #     remaining = exp_time - now
+    
+    #     if remaining.total_seconds() <= 0:
+    #         print("⛔ El token ha expirado.")
+    #         break
+
+    #     print(f"⏳ El token expira en: {int(remaining.total_seconds())} segundos.")
+    #     time.sleep(1)
+    
     # print(f"el nombre del usuario encontrado: {user}\n")
     return {"access_token": token, "token_type": "bearer","expires_in_minutes": 3}
 

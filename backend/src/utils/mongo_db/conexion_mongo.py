@@ -10,7 +10,7 @@ def connect_to_mongodb():
         client.admin.command({'ping': 1})  # Prueba si el servidor está vivo
         print("Conexión a MongoDB exitosa")
         
-        database = client["Login_User"]  # Nombre de la base de datos
+        database = client["chatvmt_user"]  # Nombre de la base de datos
         collection = database["users"]  # Nombre de la colección
         return database, collection
     
