@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import { useNavigate } from "react-router";
+// import {App} from "App.jsx";
 function RegisterBox() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,6 +28,8 @@ function RegisterBox() {
       console.log(`el response: ${response}`)
 
       if (!response.ok) throw new Error('fallo al registrar')
+
+      navigate('/chat');  // Aquí va la redirección
       const data = await response.json();
 
       // console.log('Register - Respuesta del backend:', data);
