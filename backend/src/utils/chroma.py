@@ -38,23 +38,28 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str, categor
     
     hash_value = generar_hash(contenido)
     
+    # Depuración: Verificar el hash y los documentos existentes
     find_hash = vectorstore.get(where={"hash": hash_value})
+    print(f"Buscando hash {hash_value} en {collection_name}: Encontrados {len(find_hash['documents'])} documentos")
     
     if len(find_hash["documents"]) == 0:
         chunks = dividir_en_chunks(contenido)
         documentos = [Document(page_content=chunk, metadata={"source": nombre, "hash": hash_value, "chunk_id": f"{hash_value}_chunk{i}", "category": categoria}) for i, chunk in enumerate(chunks)]
         
         start_time = time.time()
-        print(f"Total chunks: {len(documentos)}")
+        print(f"Total chunks: {len(documentos)} para {nombre}")
         
         for i in range(0, len(documentos), 32):
             print(f"Procesando: {i+32}/{len(documentos)} - {time.time() - start_time}")
-            vectorstore.add_documents(documentos[i:i+32])
-            print(f"Procesado: {i+32}/{len(documentos)} - {time.time() - start_time}", end="\r")
+            try:
+                vectorstore.add_documents(documentos[i:i+32])
+                print(f"Procesado: {i+32}/{len(documentos)} - {time.time() - start_time}", end="\r")
+            except Exception as e:
+                print(f"Error al añadir documentos: {e}")
         
-        print(f"Completado - {time.time() - start_time}")
+        print(f"Completado - {time.time() - start_time} segundos")
     else:
-        print("Archivo almacenado en ChromaDB previamente")
+        print(f"Archivo {nombre} ya almacenado en {collection_name} con hash {hash_value}")
 
 # Búsqueda relevante con filtro por categoría si es necesario
 def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3, category_filter: Optional[str] = None) -> List[str]:

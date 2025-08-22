@@ -5,7 +5,10 @@ from src.models.login import AuthRequest, LoginRequest, TokenResponse
 from pydantic import BaseModel
 from src.db.mongodb import mongo_db
 from fastapi.security import OAuth2PasswordBearer
-from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown
+from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown, indexar_pdf
+from langchain_ollama import OllamaLLM
+from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain.prompts import PromptTemplate
 from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes, get_chroma_vectorstore
 from src.config import CHROMA_MARKDOWN_COLLECTION, CHROMA_PDF_COLLECTION
 from pathlib import Path
@@ -84,10 +87,10 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
 
 def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
     try:
-        texto = leer_pdf(ruta)
+        texto = leer_pdf(Path(ruta))
         print(f"Texto extraído del PDF {nombre_archivo}: {texto[:200]}...")  
         if texto.strip():
-            indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_PDF_COLLECTION, categoria="pdf")
+            indexar_pdf(nombre=nombre_archivo, contenido=texto)
     except Exception as error:
         print(f"❌ Error al procesar {nombre_archivo}: {error}")
     finally:
@@ -97,48 +100,38 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        from langchain_ollama import OllamaLLM
-        from langchain.chains.retrieval_qa.base import RetrievalQA
-        from langchain.prompts import PromptTemplate
-
         start_time = time.time()
-        llm = OllamaLLM(model="gemma:2b", temperature=0)  
+        llm = OllamaLLM(model="gemma:2b", temperature=0)
 
-       
-        contexto_base = "\n".join(buscar_fragmentos_relevantes("contexto general", CHROMA_MARKDOWN_COLLECTION, category_filter="base", n_results=3))
-        print(f"Contexto base: {contexto_base[:200]}...")  
-
-        
         pregunta = data.pregunta.lower()
-        proceso_relevante = None
-        procesos = ["create_user", "update_user", "remove_user"]
-        for proceso in procesos:
-            if proceso in pregunta:
-                proceso_relevante = proceso
-                break
+        contexto_total = ""
 
-        
-        contexto_proceso = ""
-        if proceso_relevante:
-            contexto_proceso = "\n".join(buscar_fragmentos_relevantes(f"proceso {proceso_relevante}", CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3))
-            print(f"Contexto proceso: {contexto_proceso[:200]}...")  
-
-        
-        contexto_pdf = ""
-        if any(phrase in pregunta for phrase in ["en el pdf", "sobre el documento", "en el documento", "del pdf"]):
+        if data.context_type == "Documentos":
             pdf_content = buscar_fragmentos_relevantes(pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5)
-            contexto_pdf = "\n".join(pdf_content)
-            print(f"Contexto PDF: {contexto_pdf[:200]}...") 
+            contexto_total = "\n".join(pdf_content)
+            print(f"[05:23 AM -05] Contexto Documentos: {contexto_total[:200]}...")
+            if not contexto_total:
+                print("[05:23 AM -05] Advertencia: No se encontraron fragmentos relevantes en los Documentos")
+        elif data.context_type == "Procesos":
+            proceso_relevante = None
+            procesos = ["create_user", "update_user", "remove_user"]
+            for proceso in procesos:
+                if proceso in pregunta:
+                    proceso_relevante = proceso
+                    break
+            if proceso_relevante:
+                contexto_proceso = "\n".join(buscar_fragmentos_relevantes(f"proceso {proceso_relevante}", CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3))
+                contexto_total = contexto_proceso
+            else:
+                contexto_total = "No se detectó un proceso relevante."
+            print(f"[05:23 AM -05] Contexto Procesos: {contexto_total[:200]}...")
+        else:
+            raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")
 
-        
-        contexto_total = contexto_pdf if contexto_pdf else f"{contexto_base}\n\n{contexto_proceso}".strip()
-        if not contexto_total:
-            contexto_total = contexto_base
-        print(f"Contexto total: {contexto_total[:200]}...") 
+        print(f"[05:23 AM -05] Contexto total: {contexto_total[:200]}...")
 
-        # Configurar el prompt
         prompt = PromptTemplate(
-            template="""  
+            template="""
                 Contexto:
                 {context}
                 
@@ -149,7 +142,7 @@ def chat(data: Chat):
             """, input_variables=["context", "question"]
         )
 
-        retriever = get_chroma_vectorstore(CHROMA_PDF_COLLECTION if contexto_pdf else CHROMA_MARKDOWN_COLLECTION).as_retriever(search_kwargs={"k": 5})
+        retriever = get_chroma_vectorstore(CHROMA_PDF_COLLECTION if data.context_type == "Documentos" else CHROMA_MARKDOWN_COLLECTION).as_retriever(search_kwargs={"k": 5})
         retrieval = RetrievalQA.from_chain_type(
             llm=llm,
             retriever=retriever,
@@ -160,9 +153,8 @@ def chat(data: Chat):
 
         respuesta_completa = retrieval.invoke({"query": data.pregunta, "context": contexto_total})
         solo_respuesta = respuesta_completa["result"]
-        print(f"Respuesta generada: {solo_respuesta[:200]}...")  
+        print(f"[05:23 AM -05] Respuesta generada: {solo_respuesta[:200]}...")
 
-  
         if "Lo siento" in solo_respuesta or "no contiene información suficiente" in solo_respuesta:
             return solo_respuesta
         elif not solo_respuesta.strip():
@@ -171,5 +163,5 @@ def chat(data: Chat):
         return solo_respuesta
 
     except Exception as e:
-        print(f"Error en chat: {str(e)}")  
+        print(f"[05:23 AM -05] Error en chat: {str(e)}")
         return {"error": str(e)}

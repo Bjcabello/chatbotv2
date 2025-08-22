@@ -21,7 +21,7 @@ class MongoDBConnection:
             print("Creando índice...")
             self.collection.create_index("email", unique=True)
             self.secret_key = JWT_SECRET_KEY
-            print("Conexión a MongoDB exitosa. JWT_SECRET_KEY cargado:", self.secret_key[:10] + "..." if self.secret_key else "None")
+            print("Conexión a MongoDB exitosa.")
         except ServerSelectionTimeoutError as e:
             print(f"Error de conexión a MongoDB: {e}")
             raise HTTPException(status_code=500, detail="No se pudo conectar a la base de datos")
