@@ -39,7 +39,7 @@ def generar_hash(texto: str) -> str:
     # Convertir el string a bytes y generar el hash
     hash_obj = hashlib.sha256(texto.encode('utf-8'))
     return hash_obj.hexdigest()
-hash
+
 # Indexación del documento
 def indexar_documento(nombre: str, contenido: str, collection_name: str):
     vectorstore = get_chroma_vectorstore(collection_name)
@@ -54,6 +54,7 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str):
     
         import time
         start_time = time.time()
+        print(f"start_time: {start_time}")
     
         print(f"total chunks: {len(documentos)}")
     

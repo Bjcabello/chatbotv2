@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 import os
 from src.utils.filtered_responses import detectar_tipo_pregunta
+from src.conteo_token import count_tokens
 
 router = APIRouter()
 
@@ -34,6 +35,9 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
     try:
         texto = leer_pdf(ruta)
         if texto.strip():
+            # Conteo de tokens por subida de PDF
+            pdf_tokens = count_tokens(texto)
+            print(f"Tokens generados por la subida del PDF '{nombre_archivo}': {pdf_tokens}")
             indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_COLLECTION_PDF)
     except Exception as error:
         print(f" Error al procesar {nombre_archivo}: {error}")
@@ -84,6 +88,26 @@ def chat(data: Chat):
         # return result
         respuesta_completa = retrieval.invoke({"query": data.pregunta})
         solo_respuesta = respuesta_completa["result"]
+        
+        # --- Nuevos conteos de tokens ---
+        # Tokens de la pregunta del usuario
+        question_tokens = count_tokens(data.pregunta)
+        print(f"Tokens generados por la pregunta del usuario: {question_tokens}")
+        
+        # Contexto recuperado de Chroma (source_documents)
+        context_docs = respuesta_completa.get("source_documents", [])
+        context_text = "\n\n".join([doc.page_content for doc in context_docs])
+        context_tokens = count_tokens(context_text)
+        print(f"Tokens en el contexto recuperado: {context_tokens}")
+        
+        # Prompt completo aproximado (input a Ollama)
+        prompt_text = prompt.template.format(context=context_text, question=data.pregunta)
+        input_tokens = count_tokens(prompt_text)
+        print(f"Tokens totales en el prompt input (contexto + pregunta): {input_tokens}")
+        
+        # Tokens de la respuesta del chatbot
+        response_tokens = count_tokens(solo_respuesta)
+        print(f"Tokens generados por la respuesta del chatbot: {response_tokens}")
         
         print(respuesta_completa)
 
