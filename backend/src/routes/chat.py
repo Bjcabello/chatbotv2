@@ -162,7 +162,7 @@ def chat(data: Chat):
         solo_respuesta = respuesta_completa["result"]
         print(f"Respuesta generada: {solo_respuesta[:200]}...")  
 
-        # Verificar si la respuesta es adecuada
+  
         if "Lo siento" in solo_respuesta or "no contiene información suficiente" in solo_respuesta:
             return solo_respuesta
         elif not solo_respuesta.strip():
