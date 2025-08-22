@@ -29,6 +29,7 @@ function ChatBox() {
   const [loading, setLoading] = useState(false);
   const [archivoPDF, setArchivoPDF] = useState(null);
   const { logout, isAuthenticated } = useContext(AuthContext);
+  const [contextType, setContextType] = useState('Documentos');
   const navigate = useNavigate();
   const token = localStorage.getItem('token') || '';
 
@@ -138,19 +139,29 @@ function ChatBox() {
           </i>
         </div>
         <h3 className="text-center mt-0">ChatBot Viadocs</h3>
-        <div className="row justify-content-center mt-5">
-          <div className="col-12 col-md-4 mb-3 d-flex flex-column align-items-center">
-            <label className="form-label fw-bold">Subir PDF:</label>
-            <input
-              type="file"
-              accept=".pdf"
-              className="form-control"
-              style={{ width: '100%' }}
-              onChange={(e) => setArchivoPDF(e.target.files[0])}
-            />
-            <button className="btn btn-outline-success mt-2" style={{ width: '100%' }} onClick={handleSubirPDF}>
-              Subir PDF
-            </button>
+        <div className="row m-3">
+          <div className="col-12  d-flex justify-content-between align-items-between">
+           <div className='m-5'>
+              <label className="form-label fw-bold">Subir PDF:</label>
+              <input
+                type="file"
+                accept=".pdf"
+                className="form-control"
+                style={{ width: '60%' }}
+                onChange={(e) => setArchivoPDF(e.target.files[0])}
+              />
+              <button className="btn btn-outline-success mt-2" style={{ width: '60%' }} onClick={handleSubirPDF}>
+                Subir PDF
+              </button>
+           </div>
+
+            <div className='m-5'>
+              <label htmlFor="contextType" className="form-label fw-bold">Tipo de Contexto:</label>
+              <select className="form-select" aria-label="Default select example" value={contextType} onChange={(e) => setContextType(e.target.value)}>
+              <option value="Documentos">Documentos</option>
+              <option value="Procesos">Procesos</option>
+            </select>
+            </div>
           </div>
         </div>
         <div className="m-5">
