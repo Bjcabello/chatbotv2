@@ -20,14 +20,17 @@ import jwt
 from datetime import datetime, timedelta, timezone
 
 JWT_SECRET = "JWT_SECRET"
-JWT_ALGORITHM = "HS256"
+JWT_ALGORITHM = "HS256"  
+#68a7b2e5cd810dcc67564734
+#68a7b2e5cd810dcc67564734
 
 
-def create_access_token( email: str, minutes: int = 3) -> str:
+def create_access_token( user_id: str, email: str, minutes: int = 3) -> str:
     exp = datetime.now(timezone.utc) + timedelta(minutes=minutes)
     payload = {
         # "id_user": id_user,
         # "user_name": user_name,
+        "sub (id del usuario)": user_id,
         "email": email,
         "exp": exp,
     }

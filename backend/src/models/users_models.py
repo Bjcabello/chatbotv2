@@ -1,19 +1,19 @@
 # backend/src/models/users_models.py
 from pydantic import BaseModel, EmailStr, Field
-from uuid import UUID
+import uuid 
 from datetime import datetime
 from typing import Optional
 
 
 class UserRegister(BaseModel):  # lo que envía el cliente al registrarse
-    id: UUID  # UUID para el ID
+    # id:  uuid.UUID # UUID para el ID
     user_name: str
     password: str 
     email: EmailStr  # Validación de email con pydantic
 
 
 class UserLogin(BaseModel):  # lo que envía el cliente al hacer login
-    id: UUID
+    # id: uuid.UUID
     # user_name: str
     email: EmailStr
     password: str

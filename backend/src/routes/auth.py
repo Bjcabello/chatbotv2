@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 import secrets
 import jwt
-from uuid import UUID
+import uuid
 
 from src.models.users_models import UserRegister, UserLogin, ApiKeyPublic
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
@@ -71,6 +71,9 @@ def get_current_user_email(token: str = Depends(oauth2)) -> str:
 def register(payload: UserRegister):
     _, users, _ = _get_collections()
 
+    user_id = uuid.uuid4()
+    print(f"id de user generado en endpoint de register:{user_id}")
+
     if users.find_one({"email": payload.email}):
         raise HTTPException(status_code=409, detail="Ese email ya está registrado")
 
@@ -86,21 +89,24 @@ def register(payload: UserRegister):
     # Si quieres mostrarla aquí, puedes devolverla en otro campo
 
     return {
+        #Usar el _id de Mongo (como string).
         "username ": payload.user_name,
         "email ": payload.email,
         "password": payload.password,
+        # "id": str(result.inserted_id),     # devolvemos el id como string
     }
 
 
-def find_user_existing(user) -> str:
-    _, users, _ = _get_collections()
-    user = users
-    return user
+# def find_user_existing(user) -> str:
+#     _, users, _ = _get_collections()
+#     user = users
+#     return user
 
 
 @router.post("/login")
 def login(payload: UserLogin):
     _, users, _ = _get_collections()
+    # user_id = "default_user_id"
     user = users.find_one({"email": payload.email})
     print(f"email encontrado para  el login: {payload.email}")
     if not user:
@@ -108,17 +114,21 @@ def login(payload: UserLogin):
 
     if not verify_password(payload.password, user["password"]):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    
+    user_id = str(user["_id"])   # ← obtenemos el id real como string
+    print(f"id de usuario by mongo: {user_id}")
 
     # users.find_one({"id": payload.user_name})
 
     # print(f"name del usuario para el login: {payload.user_name}")
-    
+
     # id_usuario= users.find_one({"id": payload.id})
     # print(f"id del usuario: {id_usuario}")
-    
+
     token = create_access_token(
         # id_user=user_id,
         # user_name=str(user["user_name"]),
+        user_id = user_id,
         email=str(user["email"]),
         minutes=3,
     )
@@ -128,7 +138,7 @@ def login(payload: UserLogin):
     decode_token = decode_access_token(token)
     print(f"token descomprimido: {decode_token}")
     # print(f"el nombre del usuario encontrado: {user}\n")
-    return {"access_token": token, "token_type": "bearer", "expires_in_minutes": 3}
+    return {"access_token": token, "token_type": "bearer","id del usuario": user_id,"expires_in_minutes": 3}
 
 
 @router.post("/apikey/rotate", response_model=ApiKeyPublic)
