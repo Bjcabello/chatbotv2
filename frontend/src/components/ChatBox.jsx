@@ -103,7 +103,7 @@ function ChatBox() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ pregunta }),
+        body: JSON.stringify({ pregunta, context_type: contextType }),
       });
       if (!response.ok) throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
       console.log('ChatBox - Respuesta de /api/chat iniciada');
@@ -187,7 +187,7 @@ function ChatBox() {
         </div>
         <div className="d-flex flex-column mt-3">
           <label className="form-label fw-bold">Respuesta:</label>
-          <div className="alert alert-secondary overflow-auto" style={{ height: '200px' }}>
+          <div className="alert alert-secondary overflow-auto" style={{ height: '150px' }}>
             {loading
               ? <span><TitubeandoDot /></span>
               : (respuesta
