@@ -101,7 +101,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 def chat(data: Chat):
     try:
         start_time = time.time()
-        llm = OllamaLLM(model="gemma:2b", temperature=0)
+        llm = OllamaLLM(model="mistral", temperature=0)
 
         pregunta = data.pregunta.lower()
         contexto_total = ""
@@ -109,9 +109,9 @@ def chat(data: Chat):
         if data.context_type == "Documentos":
             pdf_content = buscar_fragmentos_relevantes(pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5)
             contexto_total = "\n".join(pdf_content)
-            print(f"[05:23 AM -05] Contexto Documentos: {contexto_total[:200]}...")
+            print(f" Contexto Documentos: {contexto_total[:200]}...")
             if not contexto_total:
-                print("[05:23 AM -05] Advertencia: No se encontraron fragmentos relevantes en los Documentos")
+                print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
         elif data.context_type == "Procesos":
             proceso_relevante = None
             procesos = ["create_user", "update_user", "remove_user"]
@@ -124,11 +124,11 @@ def chat(data: Chat):
                 contexto_total = contexto_proceso
             else:
                 contexto_total = "No se detectó un proceso relevante."
-            print(f"[05:23 AM -05] Contexto Procesos: {contexto_total[:200]}...")
+            print(f" Contexto Procesos: {contexto_total[:200]}...")
         else:
             raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")
 
-        print(f"[05:23 AM -05] Contexto total: {contexto_total[:200]}...")
+        print(f" Contexto total: {contexto_total[:200]}...")
 
         prompt = PromptTemplate(
             template="""
@@ -153,7 +153,7 @@ def chat(data: Chat):
 
         respuesta_completa = retrieval.invoke({"query": data.pregunta, "context": contexto_total})
         solo_respuesta = respuesta_completa["result"]
-        print(f"[05:23 AM -05] Respuesta generada: {solo_respuesta[:200]}...")
+        print(f" Respuesta generada: {solo_respuesta[:200]}...")
 
         if "Lo siento" in solo_respuesta or "no contiene información suficiente" in solo_respuesta:
             return solo_respuesta
