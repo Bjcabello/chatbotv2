@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './css/login.css'
 import { AuthContext } from '../context/AuthContext';
@@ -11,7 +11,9 @@ function LoginBox() {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
+    // Redirige a /chat si ya está autenticado
+    useEffect(() => {
+    });
 
     const handleLogin = async (e) => {
         if (!email || !password) {
