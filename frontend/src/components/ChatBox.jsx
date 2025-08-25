@@ -13,7 +13,7 @@ function ChatBox() {
 const handleSubirPDF = async () => {
   if (!archivoPDF) {
     alert("Selecciona un archivo PDF primero");
-    return;
+    return;z
   }
 
   const formData = new FormData();
