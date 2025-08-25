@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './css/login.css'
+import { AuthContext } from '../context/AuthContext';
+// import { AuthContext } from '../context/AuthContext';
+// import jwtDecode from 'jwt-decode'; // Instala con: npm install jwt-decode
 function LoginBox() {
     const [email, setEmail] = useState('')
     // const [userName, setUserName] = useState('')
@@ -11,7 +14,7 @@ function LoginBox() {
 
 
     const handleLogin = async (e) => {
-        if (!email || !password ) {
+        if (!email || !password) {
             setMessage('Por favor, completa todos los campos.');
             return;
 
@@ -24,13 +27,9 @@ function LoginBox() {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-            console.log('Login - Respuesta del backend:', data);
-            if (data.status === 'success' && data.token) {
-                setMessage(data.message);
-                // login(data.token);
-            } else {
-                setMessage(data.error || 'Error: Credenciales inválidas.');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Error al iniciar sesión');
             }
 
         } catch (error) {
