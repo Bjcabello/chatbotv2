@@ -8,6 +8,7 @@ function RegisterBox() {
   const [user_name, setUser_name] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -15,7 +16,6 @@ function RegisterBox() {
       setMessage('Por favor, completa todos los campos.');
       return;
     }
-
     setLoading(true);
     setMessage('');
 
@@ -25,33 +25,18 @@ function RegisterBox() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, user_name }),
       });
-      console.log(`el response: ${response}`)
+      // console.log(`el response: ${response}`)
+
+      const data = await response.json();
+      console.log('RegisterBox - Respuesta del backend:', data);
 
       if (!response.ok) throw new Error('fallo al registrar')
 
-      navigate('/chat');  // Aquí va la redirección
-      const data = await response.json();
-
-      // console.log('Register - Respuesta del backend:', data);
-      // if (data.access_token) {
-      //   setMessage('Registro exitoso');
-      //   setEmail('');
-      //   setPassword('');
-      //   setUser_name('')
-      //   // Aquí podrías redirigir al login o guardar el token si el backend lo devuelve
-      // } else {
-      //   setMessage(data.detail || 'Error al registrar.');
-      // }
-
-      // const data = await response.json();
-      // if (data.status === 'success') {
-      //   setMessage(data.message);
-      //   setUser_name('');
-      //   setPassword('');
-      //   setEmail('');
-      // } else {
-      //   setMessage(data.error || 'Error al registrar.');
-      // }
+      setMessage('Registro exitoso. Redirigiendo al login...');
+      setEmail('');
+      setPassword('');
+      setUser_name('');
+      setTimeout(() => navigate('/login'), 1500); // Redirige a /login tras 1.5s
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     } finally {

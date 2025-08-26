@@ -35,7 +35,7 @@ function ChatBox() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token') || '';
 
-    useEffect(() => {
+  useEffect(() => {
     console.log('ChatBox - Mounted, isAuthenticated:', isAuthenticated, 'Token:', token);
     if (!isAuthenticated) {
       console.log('ChatBox - No autenticado, redirigiendo');
@@ -72,7 +72,7 @@ function ChatBox() {
   const handleSubirPDF = async () => {
     if (!archivoPDF) {
       alert("Selecciona un archivo PDF primero");
-      return; 
+      return;
     }
 
     const formData = new FormData();
@@ -141,9 +141,25 @@ function ChatBox() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
+  // ✅ scroll automático cuando llega respuesta
+  useEffect(() => {
+    const box = document.getElementById("respuesta-box");
+    if (box) box.scrollTop = box.scrollHeight;
+  }, [respuesta]);
+
   return (
     <ErrorBoundary>
       <div className='container-fluid bg-light mt-4 bg-blue border border-3  ' style={{ maxWidth: "900px" }} >
+        <div className="d-flex justify-content-end mt-0 align-items-end text-center">
+          <i className="bi bi-box-arrow-in-right mt-0"
+            onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
+          </i>
+        </div>
 
         <h3 className='text-center'>ChatBot 🤖 Viadocs</h3>
         <div className='row justify-content-center mt-5'>
