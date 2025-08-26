@@ -25,7 +25,7 @@ class ErrorBoundary extends Component {
 
 function ChatBox() {
   const [pregunta, setPregunta] = useState('');
-  const [respuesta, setRespuesta] = useState();
+  const [respuesta, setRespuesta] = useState(''); // ✅ corregido: string vacío
   const [loading, setLoading] = useState(false);
   const [archivoPDF, setArchivoPDF] = useState(null);
   const { logout, isAuthenticated } = useContext(AuthContext);
@@ -112,9 +112,11 @@ function ChatBox() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value);
-        console.log('ChatBox - Chunk recibido:', chunk);
-        setRespuesta((prev) => prev + chunk);
+        const chunk = decoder.decode(value, { stream: true }); // ✅ decodificación streaming
+        if (chunk.trim()) {
+          console.log('ChatBox - Chunk recibido:', chunk);
+          setRespuesta((prev) => prev + chunk);
+        }
       }
     } catch (error) {
       console.log('ChatBox - Error en /api/chat:', error);
@@ -129,19 +131,25 @@ function ChatBox() {
     navigate('/login', { replace: true });
   };
 
+  // ✅ scroll automático cuando llega respuesta
+  useEffect(() => {
+    const box = document.getElementById("respuesta-box");
+    if (box) box.scrollTop = box.scrollHeight;
+  }, [respuesta]);
+
   console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
     <ErrorBoundary>
       <div className="container-fluid bg-light bg-blue border border-3" style={{ maxWidth: '900px' }}>
-        <div className="d-flex justify-content-end  mt-0 align-items-end text-center">
+        <div className="d-flex justify-content-end mt-0 align-items-end text-center">
           <i className="bi bi-box-arrow-in-right mt-0"
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
           </i>
         </div>
         <h3 className="text-center mt-0">ChatBot Viadocs</h3>
         <div className="row m-3">
-          <div className="col-12  d-flex justify-content-between align-items-between">
-           <div className='m-5'>
+          <div className="col-12 d-flex justify-content-between align-items-between">
+            <div className='m-5'>
               <label className="form-label fw-bold">Subir PDF:</label>
               <input
                 type="file"
@@ -153,14 +161,14 @@ function ChatBox() {
               <button className="btn btn-outline-success mt-2" style={{ width: '60%' }} onClick={handleSubirPDF}>
                 Subir PDF
               </button>
-           </div>
+            </div>
 
             <div className='m-5'>
               <label htmlFor="contextType" className="form-label fw-bold">Tipo de Contexto:</label>
               <select className="form-select" aria-label="Default select example" value={contextType} onChange={(e) => setContextType(e.target.value)}>
-              <option value="Documentos">Documentos</option>
-              <option value="Procesos">Procesos</option>
-            </select>
+                <option value="Documentos">Documentos</option>
+                <option value="Procesos">Procesos</option>
+              </select>
             </div>
           </div>
         </div>
@@ -187,21 +195,14 @@ function ChatBox() {
         </div>
         <div className="d-flex flex-column mt-3">
           <label className="form-label fw-bold">Respuesta:</label>
-          <div className="alert alert-secondary overflow-auto" style={{ height: '150px' }}>
-            {loading
-              ? <span><TitubeandoDot /></span>
-              : (respuesta
-                  ? respuesta
-                  : (pregunta ? "...." : "")
-                )
-            }
+          <div id="respuesta-box" className="alert alert-secondary overflow-auto" style={{ height: '150px', whiteSpace: 'pre-wrap' }}>
+            {respuesta || (loading ? <TitubeandoDot /> : (pregunta ? "...." : ""))}
           </div>
         </div>
       </div>
     </ErrorBoundary>
   );
 
-  
   function TitubeandoDot() {
     const [dots, setDots] = useState('');
     useEffect(() => {

@@ -8,6 +8,8 @@ from fastapi.security import OAuth2PasswordBearer
 from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown, indexar_pdf
 from langchain_ollama import OllamaLLM
 from langchain.chains.retrieval_qa.base import RetrievalQA
+from fastapi.responses import StreamingResponse
+from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes, get_chroma_vectorstore
 from src.config import CHROMA_MARKDOWN_COLLECTION, CHROMA_PDF_COLLECTION
@@ -98,20 +100,26 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
             os.remove(ruta)
 
 @router.post("/chat")
-def chat(data: Chat):
+def chat_stream(data: Chat):
     try:
         start_time = time.time()
-        llm = OllamaLLM(model="mistral", temperature=0)
+
+        # Inicializar LLM con streaming activado
+        llm = ChatOllama(model="mistral", temperature=0, streaming=True)
 
         pregunta = data.pregunta.lower()
         contexto_total = ""
 
+        # --- Recuperar contexto según el tipo ---
         if data.context_type == "Documentos":
-            pdf_content = buscar_fragmentos_relevantes(pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5)
+            pdf_content = buscar_fragmentos_relevantes(
+                pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
+            )
             contexto_total = "\n".join(pdf_content)
             print(f" Contexto Documentos: {contexto_total[:200]}...")
             if not contexto_total:
                 print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
+
         elif data.context_type == "Procesos":
             proceso_relevante = None
             procesos = ["create_user", "update_user", "remove_user"]
@@ -120,48 +128,42 @@ def chat(data: Chat):
                     proceso_relevante = proceso
                     break
             if proceso_relevante:
-                contexto_proceso = "\n".join(buscar_fragmentos_relevantes(f"proceso {proceso_relevante}", CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3))
-                contexto_total = contexto_proceso
+                contexto_total = "\n".join(
+                    buscar_fragmentos_relevantes(
+                        f"proceso {proceso_relevante}", 
+                        CHROMA_MARKDOWN_COLLECTION, 
+                        category_filter="processes", 
+                        n_results=3
+                    )
+                )
             else:
                 contexto_total = "No se detectó un proceso relevante."
             print(f" Contexto Procesos: {contexto_total[:200]}...")
+
         else:
             raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")
 
         print(f" Contexto total: {contexto_total[:200]}...")
 
-        prompt = PromptTemplate(
-            template="""
-                Contexto:
-                {context}
-                
-                Pregunta:
-                {question}
-                
-                Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
-            """, input_variables=["context", "question"]
-        )
+        # --- Construir el prompt ---
+        prompt = f"""
+        Contexto:
+        {contexto_total}
 
-        retriever = get_chroma_vectorstore(CHROMA_PDF_COLLECTION if data.context_type == "Documentos" else CHROMA_MARKDOWN_COLLECTION).as_retriever(search_kwargs={"k": 5})
-        retrieval = RetrievalQA.from_chain_type(
-            llm=llm,
-            retriever=retriever,
-            chain_type="stuff",
-            return_source_documents=True,
-            chain_type_kwargs={"prompt": prompt},
-        )
+        Pregunta:
+        {data.pregunta}
 
-        respuesta_completa = retrieval.invoke({"query": data.pregunta, "context": contexto_total})
-        solo_respuesta = respuesta_completa["result"]
-        print(f" Respuesta generada: {solo_respuesta[:200]}...")
+        Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
+        """
 
-        if "Lo siento" in solo_respuesta or "no contiene información suficiente" in solo_respuesta:
-            return solo_respuesta
-        elif not solo_respuesta.strip():
-            return "Estimado(a), el documento proporcionado no contiene información suficiente sobre esa pregunta. 😔"
+        # --- Generar la respuesta en streaming ---
+        def generate():
+            for chunk in llm.stream(prompt):
+                if chunk.content:
+                    yield chunk.content  # Devuelve token por token
 
-        return solo_respuesta
+        return StreamingResponse(generate(), media_type="text/plain")
 
     except Exception as e:
-        print(f"[05:23 AM -05] Error en chat: {str(e)}")
+        print(f"Error en chat: {str(e)}")
         return {"error": str(e)}
