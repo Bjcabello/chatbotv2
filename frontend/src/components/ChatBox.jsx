@@ -142,8 +142,9 @@ function ChatBox() {
     <ErrorBoundary>
       <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
         <div className="d-flex justify-content-end mt-0 align-items-end text-center">
-          <i className="bi bi-box-arrow-in-right m-0"
+          <i className="bi bi-box-arrow-in-right m-0 "
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
+              
           </i>
         </div>
         <h3 className="text-center m-0">ChatBot Viadocs</h3>
@@ -162,7 +163,6 @@ function ChatBox() {
                 Subir PDF
               </button>
             </div>
-
             <div className='m-5'>
               <label htmlFor="contextType" className="form-label fw-bold">Tipo de Contexto:</label>
               <select className="form-select" aria-label="Default select example" value={contextType} onChange={(e) => setContextType(e.target.value)}>
@@ -202,7 +202,6 @@ function ChatBox() {
       </div>
     </ErrorBoundary>
   );
-
   function TitubeandoDot() {
     const [dots, setDots] = useState('');
     useEffect(() => {
