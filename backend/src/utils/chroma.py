@@ -8,10 +8,10 @@ from typing import Optional, List, Dict
 import hashlib
 import time
 
-# Cargar modelo BAAI/bge-m3 como función de embeddings
+
 embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
 
-# Inicializar almacén de vectores persistente con colección dinámica
+
 def get_chroma_vectorstore(collection_name: str):
     return Chroma(
         collection_name=collection_name,
@@ -32,13 +32,13 @@ def generar_hash(texto: str) -> str:
     hash_obj = hashlib.sha256(texto.encode('utf-8'))
     return hash_obj.hexdigest()
 
-# Indexación del documento con colección específica y metadatos
+
 def indexar_documento(nombre: str, contenido: str, collection_name: str, categoria: str):
     vectorstore = get_chroma_vectorstore(collection_name)
     
     hash_value = generar_hash(contenido)
     
-    # Depuración: Verificar el hash y los documentos existentes
+    
     find_hash = vectorstore.get(where={"hash": hash_value})
     print(f"Buscando hash {hash_value} en {collection_name}: Encontrados {len(find_hash['documents'])} documentos")
     
@@ -61,7 +61,7 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str, categor
     else:
         print(f"Archivo {nombre} ya almacenado en {collection_name} con hash {hash_value}")
 
-# Búsqueda relevante con filtro por categoría si es necesario
+
 def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3, category_filter: Optional[str] = None) -> List[str]:
     vectorstore = get_chroma_vectorstore(collection_name)
     search_kwargs = {"k": n_results}
