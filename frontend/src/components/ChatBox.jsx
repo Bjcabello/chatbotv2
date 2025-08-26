@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+
 function ChatBox() {
   const [usuario, setUsuario] = useState('');
   const [dni, setDni] = useState('');
@@ -10,34 +11,36 @@ function ChatBox() {
   const [archivoPDF, setArchivoPDF] = useState(null);
 
 
-const handleSubirPDF = async () => {
-  if (!archivoPDF) {
-    alert("Selecciona un archivo PDF primero");
-    return;z
-  }
+  
 
-  const formData = new FormData();
-  formData.append("file", archivoPDF);
-
-  try {
-    const response = await fetch("http://localhost:8000/upload-pdf", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (data.error) {
-      alert("Error al subir: " + data.error);
-    } else {
-      alert("✅ " + data.mensaje);
+  const handleSubirPDF = async () => {
+    if (!archivoPDF) {
+      alert("Selecciona un archivo PDF primero");
+      return; z
     }
-  } catch (error) {
-    alert("Error al subir el PDF: " + error.message);
-  }
-};
+
+    const formData = new FormData();
+    formData.append("file", archivoPDF);
+
+    try {
+      const response = await fetch("http://localhost:8000/upload-pdf", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.error) {
+        alert("Error al subir: " + data.error);
+      } else {
+        alert("✅ " + data.mensaje);
+      }
+    } catch (error) {
+      alert("Error al subir el PDF: " + error.message);
+    }
+  };
 
   const handlersubirPdf = async () => {
-    if(!fileUploaded){
+    if (!fileUploaded) {
       return alert("no has subido ningun archivo")
 
     }
@@ -83,99 +86,99 @@ const handleSubirPDF = async () => {
   };
 
   return (
-    <div className='container-fluid bg-light mt-4 bg-blue border border-3  ' style={{ maxWidth: "900px"}} >
-      
-        <h3 className='text-center'>ChatBot 🤖 Viadocs</h3>
-        <div className='row justify-content-center mt-5'>
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>Nombre del Usuario:</label>
-            <input 
-              type="text" 
-              className='form-control ' 
-              value={usuario} 
-              placeholder='Ingrese nombre' 
-              style={{ width: "55%" }} 
-              onChange={e => setUsuario(e.target.value)} 
-            />
-          </div>
+    <div className='container-fluid bg-light mt-4 bg-blue border border-3  ' style={{ maxWidth: "900px" }} >
 
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>DNI:</label>
-            <input 
-              type="text" 
-              className='form-control' 
-              value={dni} 
-              placeholder='Ingrese DNI' 
-              style={{ width: "55%" }} 
-              onChange={e => setDni(e.target.value)} 
-            />
-          </div>
-
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>Tipo de Usuario:</label>
-            <select 
-              className='form-control'
-              value={tipoUsuario} 
-              onChange={e => setTipoUsuario(e.target.value)} 
-              style={{ width: "55%" }} >
-              <option value="" disabled>escoge un rol</option>
-              <option value="admin">admin</option>
-              <option value="cliente">cliente</option>
-            </select>
-          </div>
-
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>Subir PDF:</label>
-             <input 
-               type="file" 
-               accept=".pdf" 
-               className='form-control' 
-               style={{ width: "100%" }} 
-               onChange={e => setArchivoPDF(e.target.files[0])} 
-             />
-             <button 
-                className='btn btn-outline-success mt-2' 
-                style={{ width: "100%" }} 
-                onClick={handleSubirPDF}>
-                Subir PDF
-                </button>
-          </div>
-
-
-          <div className='text-center'>
-
-        </div>
-        </div>
-        <div></div>
-        <div className='m-5'>
-          <label className='form-label fw-bold'>Pregunta:</label>
-          <input 
-            type="text" 
-            className='form-control' 
-            value={pregunta} 
-            placeholder='Ingrese su pregunta' 
-            style={{ width: "100%" }} 
-            onChange={e => setPregunta(e.target.value)} 
+      <h3 className='text-center'>ChatBot 🤖 Viadocs</h3>
+      <div className='row justify-content-center mt-5'>
+        <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+          <label className='form-label fw-bold'>Nombre del Usuario:</label>
+          <input
+            type="text"
+            className='form-control '
+            value={usuario}
+            placeholder='Ingrese nombre'
+            style={{ width: "55%" }}
+            onChange={e => setUsuario(e.target.value)}
           />
         </div>
 
-        <div className='text-center'>
-          <button 
-            className='btn btn-outline-primary icon-link-hover' 
-            style={{ width: "40%" }} 
-            onClick={handleEnviar} 
-            disabled={loading}>
-            {loading ? 'cargando respuesta ....' : 'Enviar'}
+        <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+          <label className='form-label fw-bold'>DNI:</label>
+          <input
+            type="text"
+            className='form-control'
+            value={dni}
+            placeholder='Ingrese DNI'
+            style={{ width: "55%" }}
+            onChange={e => setDni(e.target.value)}
+          />
+        </div>
+
+        <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+          <label className='form-label fw-bold'>Tipo de Usuario:</label>
+          <select
+            className='form-control'
+            value={tipoUsuario}
+            onChange={e => setTipoUsuario(e.target.value)}
+            style={{ width: "55%" }} >
+            <option value="" disabled>escoge un rol</option>
+            <option value="admin">admin</option>
+            <option value="cliente">cliente</option>
+          </select>
+        </div>
+
+        <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
+          <label className='form-label fw-bold'>Subir PDF:</label>
+          <input
+            type="file"
+            accept=".pdf"
+            className='form-control'
+            style={{ width: "100%" }}
+            onChange={e => setArchivoPDF(e.target.files[0])}
+          />
+          <button
+            className='btn btn-outline-success mt-2'
+            style={{ width: "100%" }}
+            onClick={handleSubirPDF}>
+            Subir PDF
           </button>
         </div>
 
-        <div className='d-flex flex-column mt-3s'>
-          <label className='form-label fw-bold'>Respuesta:</label>
-          <div  className='alert alert-secondary overflow-auto' style={{height:"400px"}}>
-            {respuesta}
-          </div>
+
+        <div className='text-center'>
+
         </div>
-      
+      </div>
+      <div></div>
+      <div className='m-5'>
+        <label className='form-label fw-bold'>Pregunta:</label>
+        <input
+          type="text"
+          className='form-control'
+          value={pregunta}
+          placeholder='Ingrese su pregunta'
+          style={{ width: "100%" }}
+          onChange={e => setPregunta(e.target.value)}
+        />
+      </div>
+
+      <div className='text-center'>
+        <button
+          className='btn btn-outline-primary icon-link-hover'
+          style={{ width: "40%" }}
+          onClick={handleEnviar}
+          disabled={loading}>
+          {loading ? 'cargando respuesta ....' : 'Enviar'}
+        </button>
+      </div>
+
+      <div className='d-flex flex-column mt-3s'>
+        <label className='form-label fw-bold'>Respuesta:</label>
+        <div className='alert alert-secondary overflow-auto' style={{ height: "400px" }}>
+          {respuesta}
+        </div>
+      </div>
+
     </div>
   );
 }

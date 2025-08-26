@@ -44,7 +44,7 @@ function LoginBox() {
             console.log('Login - Respuesta del backend:', data);
 
             // Decodifica el token para obtener el user_id
-            const token = data.create_access_token;
+            const token = data.access_token;
             // Ajusta para usar access_token y user_id
             // const userId = data.user_id; // Asegúrate de que sea uuid.UUID o string
             if (token) {
