@@ -104,13 +104,13 @@ def chat_stream(data: Chat):
     try:
         start_time = time.time()
 
-        # Inicializar LLM con streaming activado
+        
         llm = ChatOllama(model="mistral", temperature=0, streaming=True)
 
         pregunta = data.pregunta.lower()
         contexto_total = ""
 
-        # --- Recuperar contexto según el tipo ---
+        
         if data.context_type == "Documentos":
             pdf_content = buscar_fragmentos_relevantes(
                 pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
@@ -137,8 +137,8 @@ def chat_stream(data: Chat):
                     )
                 )
             else:
-                contexto_total = "No se detectó un proceso relevante."
-            print(f" Contexto Procesos: {contexto_total[:200]}...")
+                contexto_total = "se detectó un proceso relevante."
+            
 
         else:
             raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")
@@ -156,11 +156,11 @@ def chat_stream(data: Chat):
         Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
         """
 
-        # --- Generar la respuesta en streaming ---
+       
         def generate():
             for chunk in llm.stream(prompt):
                 if chunk.content:
-                    yield chunk.content  # Devuelve token por token
+                    yield chunk.content  
 
         return StreamingResponse(generate(), media_type="text/plain")
 

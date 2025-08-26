@@ -5,14 +5,14 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
 import uuid
-# No necesitamos importar UuidRepresentation si usamos la cadena 'standard'
+
 
 class MongoDBConnection:
     def __init__(self):
         try:
             print(f"Intentando conectar a MONGO_URI: {MONGO_URI}")
             print(f"DB Name: {MONGO_DB_NAME}, Collection: {MONGO_COLLECTION_NAME}")
-            # Usa 'standard' como cadena en lugar de UuidRepresentation.STANDARD
+            
             self.client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000, uuidRepresentation='standard')
             print("Ping a MongoDB...")
             self.client.admin.command('ping')
@@ -30,7 +30,7 @@ class MongoDBConnection:
             raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
 
     def __del__(self):
-        # Maneja el caso en que self.client no esté definido
+        
         if hasattr(self, 'client') and self.client:
             self.close()
 
@@ -74,7 +74,7 @@ class MongoDBConnection:
             raise HTTPException(status_code=400, detail="User ID is required")
         payload = {
             "sub": user_id,
-            "exp": datetime.now(timezone.utc) + timedelta(minutes=30)
+            "exp": datetime.now(timezone.utc) + timedelta(hours=1)
         }
         return jwt.encode(payload, self.secret_key, algorithm="HS256")
 

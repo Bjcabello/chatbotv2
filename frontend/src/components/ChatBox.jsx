@@ -25,7 +25,7 @@ class ErrorBoundary extends Component {
 
 function ChatBox() {
   const [pregunta, setPregunta] = useState('');
-  const [respuesta, setRespuesta] = useState(''); // ✅ corregido: string vacío
+  const [respuesta, setRespuesta] = useState(''); 
   const [loading, setLoading] = useState(false);
   const [archivoPDF, setArchivoPDF] = useState(null);
   const { logout, isAuthenticated } = useContext(AuthContext);
@@ -131,7 +131,7 @@ function ChatBox() {
     navigate('/login', { replace: true });
   };
 
-  // ✅ scroll automático cuando llega respuesta
+  
   useEffect(() => {
     const box = document.getElementById("respuesta-box");
     if (box) box.scrollTop = box.scrollHeight;
@@ -140,16 +140,16 @@ function ChatBox() {
   console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
     <ErrorBoundary>
-      <div className="container-fluid bg-light bg-blue border border-3" style={{ maxWidth: '900px' }}>
+      <div className="container-fluid bg-light mt-4 bg-blue border border-3" style={{ maxWidth: '900px' }}>
         <div className="d-flex justify-content-end mt-0 align-items-end text-center">
-          <i className="bi bi-box-arrow-in-right mt-0"
+          <i className="bi bi-box-arrow-in-right m-0"
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
           </i>
         </div>
-        <h3 className="text-center mt-0">ChatBot Viadocs</h3>
-        <div className="row m-3">
+        <h3 className="text-center m-0">ChatBot Viadocs</h3>
+        <div className="row m-0">
           <div className="col-12 d-flex justify-content-between align-items-between">
-            <div className='m-5'>
+            <div className='m-4'>
               <label className="form-label fw-bold">Subir PDF:</label>
               <input
                 type="file"
@@ -172,7 +172,7 @@ function ChatBox() {
             </div>
           </div>
         </div>
-        <div className="m-5">
+        <div className="m-2">
           <label className="form-label fw-bold">Pregunta:</label>
           <input
             type="text"
