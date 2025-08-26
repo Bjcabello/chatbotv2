@@ -131,7 +131,7 @@ def login(payload: UserLogin):
         # user_name=str(user["user_name"]),
         user_id = user_id,
         email=str(user["email"]),
-        minutes=3,
+        minutes=2,
     )
     # user = users.find_one({"user_name": payload.user_name})
 
@@ -155,7 +155,7 @@ def login(payload: UserLogin):
     #     time.sleep(1)
     
     # print(f"el nombre del usuario encontrado: {user}\n")
-    return {"access_token": token, "token_type": "bearer","expires_in_minutes": 3}
+    return {"el access_token": token, "token_type": "bearer","expires_in_minutes": 2}
 
 
 @router.post("/apikey/rotate", response_model=ApiKeyPublic)
