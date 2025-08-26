@@ -156,7 +156,7 @@ function ChatBox() {
     <ErrorBoundary>
       <div className='container-fluid bg-light mt-4 bg-blue border border-3  ' style={{ maxWidth: "900px" }} >
         <div className="d-flex justify-content-end mt-0 align-items-end text-center">
-          <i className="bi bi-box-arrow-in-right mt-0"
+          <i className="bi bi-door-closed-fill"
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
           </i>
         </div>

@@ -12,7 +12,14 @@ def leer_pdf(path: Path) -> str:
     try:
         loader = PyMuPDFLoader(str(path))
         documents = loader.load()
+        print(f"impriminedo el documents {documents}  \n")
+        
+        # Extraer total_pages del primer documento
+        total_pages = documents[0].metadata.get('total_pages', 0)  # Usamos get para evitar errores si no existe
+        print(f"\n ----- Número total de páginas: {total_pages}")
+     
         texto = "\n".join(doc.page_content for doc in documents)
+        
         return texto.strip()
     except Exception as e:
         raise Exception(f"Error al leer el PDF: {str(e)}")
