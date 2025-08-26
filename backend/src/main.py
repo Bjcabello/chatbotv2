@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from src.routes.chat import router as chat_router
-from src.routes.auth import router as auth_router
+from src.routes.chat_routes import router as chat_router
+from src.routes.auth_routes import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from src.utils.file import indexar_markdowns
 from src.utils.mongo_db.create import ensure_indexes

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.config import CHROMA_COLLECTION_PDF, CHROMA_COLLECTION_MD
-from src.models.chat import Chat
+from src.models.chats_models import Chat
 from src.utils.file import leer_pdf
 from src.utils.chroma import indexar_documento
 from pathlib import Path
