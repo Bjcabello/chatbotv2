@@ -105,6 +105,7 @@ def register(payload: UserRegister):
 
 @router.post("/login")
 def login(payload: UserLogin):
+    print("has ingresado al endpoint de login")
     _, users, _ = _get_collections()
     # user_id = "default_user_id"
     user = users.find_one({"email": payload.email})
