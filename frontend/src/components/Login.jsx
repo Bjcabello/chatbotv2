@@ -39,12 +39,12 @@ function Login() {
       if (!response.ok) throw new Error('Credenciales inválidas');
       const data = await response.json();
       console.log('Login - Respuesta del backend:', data);
-      // Ajusta para usar access_token y user_id
+      
       const token = data.access_token;
-      const userId = data.user_id; // Asegúrate de que sea uuid.UUID o string
+      const userId = data.user_id; 
       if (token) {
         setMessage('Inicio de sesión exitoso');
-        login(token, userId); // Pasa userId al AuthContext si lo necesitas
+        login(token, userId); 
         localStorage.setItem('token', token);
         localStorage.setItem('userId', userId);
         navigate('/chatbox', { replace: true });

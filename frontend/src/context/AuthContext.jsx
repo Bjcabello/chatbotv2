@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
     const checkToken = () => {
       const token = localStorage.getItem('token');
       if (token) {
-        // Aquí podrías usar jwt-decode para verificar expiración
+       
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);

@@ -118,7 +118,7 @@ def chat_stream(data: Chat):
         
         if data.context_type == "Documentos":
             pdf_content = buscar_fragmentos_relevantes(
-                pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
+            pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
             )
             contexto_total = "\n".join(pdf_content)
             print(f" Contexto Documentos: {contexto_total[:200]}...")
@@ -126,24 +126,13 @@ def chat_stream(data: Chat):
                 print("No se encontraron fragmentos relevantes en los Documentos")
 
         elif data.context_type == "Procesos":
-            proceso_relevante = None
-            procesos = ["create_user", "update_user", "remove_user"]
-            for proceso in procesos:
-                if proceso in pregunta:
-                    proceso_relevante = proceso
-                    break
-            if proceso_relevante:
-                contexto_total = "\n".join(
-                    buscar_fragmentos_relevantes(
-                        f"proceso {proceso_relevante}", 
-                        CHROMA_MARKDOWN_COLLECTION, 
-                        category_filter="processes", 
-                        n_results=3
-                    )
-                )
-            else:
-                contexto_total = "se detectó un proceso relevante."
-            
+            procesos_content = buscar_fragmentos_relevantes(
+            pregunta, CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3
+            )
+            contexto_total = "\n".join(procesos_content)
+            print(f" Contexto Procesos: {contexto_total[:200]}...")
+            if not contexto_total:
+                print("No se encontraron fragmentos relevantes en Procesos")
 
         else:
             raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")

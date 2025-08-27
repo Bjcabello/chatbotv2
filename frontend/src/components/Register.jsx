@@ -31,7 +31,7 @@ function Register() {
         setMessage('Registro exitoso');
         setEmail('');
         setPassword('');
-        // Aquí podrías redirigir al login o guardar el token si el backend lo devuelve
+        
       } else {
         setMessage(data.detail || 'Error al registrar.');
       }
