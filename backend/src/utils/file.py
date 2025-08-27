@@ -7,11 +7,22 @@ def leer_markdown(path: Path) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read().strip()
 
+def  count_pagepdf(documents: str)-> int:
+    return documents[0].metadata.get("total_pages", 0)
+
 def leer_pdf(path: Path) -> str:
     try:
         loader = PyMuPDFLoader(str(path))
         documents = loader.load()
+
+        total_pages = count_pagepdf(documents)
+
+        if total_pages > 30:
+            print(f"El PDF {path.name} tiene {total_pages} páginas.")
+            raise Exception("Limite permitido 30 páginas.")
+
         texto = "\n".join(doc.page_content for doc in documents)
+
         return texto.strip()
     except Exception as e:
         raise Exception(f"Error al leer el PDF: {str(e)}")
