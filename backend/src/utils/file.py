@@ -1,7 +1,7 @@
 from pathlib import Path
 import pdfplumber
 from  langchain_community.document_loaders import PyMuPDFLoader
-from src.config import BASE_CONTEXT, PROCESSES_CONTEXT, CHROMA_COLLECTION_MD, LIMIT_PAGE_PDF
+from src.config import BASE_CONTEXT, PROCESSES_CONTEXT, CHROMA_COLLECTION_MD, LIMIT_PAGE_PDF, CHROMA_PDF_COLLECTION, CHROMA_MARKDOWN_COLLECTION
 from src.utils.chroma import indexar_documento
 
 def leer_markdown(path: Path) -> str:
@@ -34,14 +34,25 @@ def leer_pdf(path: Path) -> str:
 
 
 def indexar_markdowns():
-    directorios = [BASE_CONTEXT, PROCESSES_CONTEXT]
+    for archivo in BASE_CONTEXT.glob("*.md"):
+        try:
+            contenido = leer_markdown(archivo)
+            if contenido.strip():
+                indexar_documento(nombre=str(archivo.name), contenido=contenido, collection_name=CHROMA_MARKDOWN_COLLECTION, categoria="base")
+                print(f"Indexado: {archivo.name} (base)")
+        except Exception as e:
+            print(f"Error al indexar {archivo.name}: {e}")
 
-    for directorio in directorios:
-        for archivo in directorio.glob("*.md"):
-            try:
-                contenido = leer_markdown(archivo)
-                if contenido.strip():
-                    indexar_documento(nombre=str(archivo.name), contenido=contenido, collection_name=CHROMA_COLLECTION_MD)
-                    print(f" Indexado: {archivo.name}")
-            except Exception as e:
-                print(f" Error al indexar {archivo.name}: {e}")
+    for archivo in PROCESSES_CONTEXT.glob("*.md"):
+        try:
+            contenido = leer_markdown(archivo)
+            if contenido.strip():
+                indexar_documento(nombre=str(archivo.name), contenido=contenido, collection_name=CHROMA_MARKDOWN_COLLECTION, categoria="processes")
+                print(f"Indexado: {archivo.name} (processes)")
+        except Exception as e:
+            print(f"Error al indexar {archivo.name}: {e}")
+                
+def indexar_pdf(nombre: str, contenido: str):
+    if contenido.strip():
+        indexar_documento(nombre=nombre, contenido=contenido, collection_name=CHROMA_PDF_COLLECTION, categoria="pdf")
+        print(f"Indexado: {nombre} (pdf)")

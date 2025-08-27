@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 from src.config import CHROMA_COLLECTION_PDF, CHROMA_COLLECTION_MD,CHROMA_PDF_COLLECTION, CHROMA_MARKDOWN_COLLECTION
 from src.models.chats_models import Chat
-from src.utils.file import leer_pdf
+from src.utils.file import leer_pdf, indexar_pdf
 from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes
 from pathlib import Path
 import shutil
@@ -10,6 +10,7 @@ from src.utils.filtered_responses import detectar_tipo_pregunta
 from src.conteo_token import count_tokens
 from fastapi.responses import StreamingResponse
 from fastapi import APIRouter, HTTPException, Depends, status
+from langchain_ollama import ChatOllama
 
 
 router = APIRouter()
@@ -47,7 +48,9 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
             # Conteo de tokens por subida de PDF
             pdf_tokens = count_tokens(texto)
             print(f"Tokens generados por la subida del PDF '{nombre_archivo}': {pdf_tokens}")
-            indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_COLLECTION_PDF)
+            # indexar_documento(nombre=nombre_archivo, contenido=texto, collection_name=CHROMA_COLLECTION_PDF)
+            if texto.strip():
+                indexar_pdf(nombre=nombre_archivo, contenido=texto)
     except Exception as error:
         print(f" Error al procesar {nombre_archivo}: {error}")
     finally:
@@ -58,11 +61,11 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        from langchain_ollama import OllamaLLM
-        from langchain.chains.retrieval_qa.base import RetrievalQA
-        from langchain.prompts import PromptTemplate
+        # from langchain_ollama import OllamaLLM
+        # from langchain.chains.retrieval_qa.base import RetrievalQA
+        # from langchain.prompts import PromptTemplate
 
-        llm = OllamaLLM(model="mistral", temperature=0, streaming=True)
+        llm = ChatOllama(model="mistral", temperature=0, streaming=True)
         # llm = OllamaLLM(model="gemma:2b ", temperature=0.1)
         #  Usamos la detección semántica
 
@@ -79,6 +82,8 @@ def chat(data: Chat):
             )
             context_full = "\n".join(pdf_content)
             print(f" Contexto Documentos: {context_full}")
+            if not context_full:
+                print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
 
         elif data.context_type == "Proccess":
             proceso_relevante = None
@@ -98,6 +103,7 @@ def chat(data: Chat):
                 )
             else:
                 context_full = "se detectó un proceso relevante."
+            
 
         else:
             raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")

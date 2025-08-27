@@ -41,7 +41,7 @@ def generar_hash(texto: str) -> str:
     return hash_obj.hexdigest()
 
 # Indexación del documento
-def indexar_documento(nombre: str, contenido: str, collection_name: str):
+def indexar_documento(nombre: str, contenido: str, collection_name: str, categoria: str):
     vectorstore = get_chroma_vectorstore(collection_name)
         
     hash = generar_hash(contenido) 
@@ -50,7 +50,7 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str):
     
     if len(find_hash["documents"]) == 0:
         chunks = dividir_en_chunks(contenido)
-        documentos = [Document(page_content=chunk, metadata={"source": nombre, "hash": hash, "chunk_id": f"{hash}_chunk{i}"}) for i, chunk in enumerate(chunks)] #lista de objetos
+        documentos = [Document(page_content=chunk, metadata={"source": nombre, "hash": hash, "chunk_id": f"{hash}_chunk{i}","category": categoria}) for i, chunk in enumerate(chunks)] #lista de objetos
     
         import time
         start_time = time.time()
@@ -69,18 +69,25 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str):
     
     
 # Búsqueda relevante
+# def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3, category_filter: Optional[str] = None) -> List[str]:
+#     vectorstore = get_chroma_vectorstore(collection_name)
+#     # retriever: VectorStoreRetriever = vectorstore.as_retriever(search_kwargs={"k": n_results})
+#     # documentos = retriever.invoke(pregunta)
+#     # return [doc.page_content for doc in documentos]
+#     search_kwargs = {"k": n_results}
+#     if category_filter:
+#         search_kwargs["filter"] = {"category": category_filter}
+#     retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
+#     documentos = retriever.invoke(pregunta)
+#     return [doc.page_content for doc in documentos]
 def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3, category_filter: Optional[str] = None) -> List[str]:
     vectorstore = get_chroma_vectorstore(collection_name)
-    # retriever: VectorStoreRetriever = vectorstore.as_retriever(search_kwargs={"k": n_results})
-    # documentos = retriever.invoke(pregunta)
-    # return [doc.page_content for doc in documentos]
     search_kwargs = {"k": n_results}
     if category_filter:
         search_kwargs["filter"] = {"category": category_filter}
     retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
     documentos = retriever.invoke(pregunta)
     return [doc.page_content for doc in documentos]
-
 
 
 
