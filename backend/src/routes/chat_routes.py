@@ -22,6 +22,12 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
         # Guardar el archivo en disco
         with open(ruta_temporal, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
+        
+        try:
+            leer_pdf(ruta_temporal)  # si excede límite, lanza excepción
+        except Exception as e:
+            os.remove(ruta_temporal)  # borrar archivo temporal
+            return {"error": str(e)}
 
         # Procesar el archivo PDF en segundo plano
         background_tasks.add_task(procesar_pdf_en_background, ruta_temporal, file.filename)

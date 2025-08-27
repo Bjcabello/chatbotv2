@@ -1,22 +1,30 @@
 from pathlib import Path
 import pdfplumber
 from  langchain_community.document_loaders import PyMuPDFLoader
-from src.config import BASE_CONTEXT, PROCESSES_CONTEXT, CHROMA_COLLECTION_MD
+from src.config import BASE_CONTEXT, PROCESSES_CONTEXT, CHROMA_COLLECTION_MD, LIMIT_PAGE_PDF
 from src.utils.chroma import indexar_documento
 
 def leer_markdown(path: Path) -> str:
     with open(path, "r", encoding="utf-8") as f:
         return f.read().strip()
 
+def count_pages_pdf(documents: str) -> int:
+    return documents[0].metadata.get('total_pages', 0)  # Usamos get para evitar errores si no existe
+
+
 def leer_pdf(path: Path) -> str:
     try:
         loader = PyMuPDFLoader(str(path))
         documents = loader.load()
         print(f"impriminedo el documents {documents}  \n")
-        
-        # Extraer total_pages del primer documento
-        total_pages = documents[0].metadata.get('total_pages', 0)  # Usamos get para evitar errores si no existe
-        print(f"\n ----- Número total de páginas: {total_pages}")
+
+        total_pages = count_pages_pdf(documents)
+
+        if total_pages > LIMIT_PAGE_PDF:
+            print(" **** excedio el numero de paginas  *** ")
+            raise Exception(f"El archivo tiene {total_pages} páginas, excede el límite de {LIMIT_PAGE_PDF} paginas.")
+
+        print(f"\n ---Número total de páginas: {total_pages} \n")
      
         texto = "\n".join(doc.page_content for doc in documents)
         
