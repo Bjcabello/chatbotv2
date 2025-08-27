@@ -14,4 +14,6 @@ CHROMA_DB_PATH = "./chroma_db"
 # CHROMA_COLLECTION_NAME = "documentos_pdf"
 CHROMA_COLLECTION_PDF = "documentos_pdf"
 CHROMA_COLLECTION_MD = "documentos_md"
-LIMIT_PAGE_PDF = 3
+LIMIT_PAGE_PDF = 30
+CHROMA_MARKDOWN_COLLECTION = "markdown_index"  
+CHROMA_PDF_COLLECTION = "pdf_index"  

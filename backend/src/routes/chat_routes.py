@@ -1,13 +1,16 @@
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
-from src.config import CHROMA_COLLECTION_PDF, CHROMA_COLLECTION_MD
+from src.config import CHROMA_COLLECTION_PDF, CHROMA_COLLECTION_MD,CHROMA_PDF_COLLECTION, CHROMA_MARKDOWN_COLLECTION
 from src.models.chats_models import Chat
 from src.utils.file import leer_pdf
-from src.utils.chroma import indexar_documento
+from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes
 from pathlib import Path
 import shutil
 import os
 from src.utils.filtered_responses import detectar_tipo_pregunta
 from src.conteo_token import count_tokens
+from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, Depends, status
+
 
 router = APIRouter()
 
@@ -59,41 +62,88 @@ def chat(data: Chat):
         from langchain.chains.retrieval_qa.base import RetrievalQA
         from langchain.prompts import PromptTemplate
 
-        llm = OllamaLLM(model="mistral", temperature=0.1)
+        llm = OllamaLLM(model="mistral", temperature=0, streaming=True)
         # llm = OllamaLLM(model="gemma:2b ", temperature=0.1)
-        #  Aquí decides la colección según la pregunta
         #  Usamos la detección semántica
-        collection_name = detectar_tipo_pregunta(data.pregunta)
 
-        from src.utils.chroma import get_chroma_vectorstore
-        retriever = get_chroma_vectorstore(collection_name).as_retriever(search_kwargs={"k": 5})
+        # collection_name = detectar_tipo_pregunta(data.pregunta)
 
-        prompt = PromptTemplate(
-            template="""  
-                Contexto:
-                {context}
+        question  = data.pregunta.lower()
+        context_full = ""
+
+        # from src.utils.chroma import get_chroma_vectorstore
+        # retriever = get_chroma_vectorstore(collection_name).as_retriever(search_kwargs={"k": 5})
+        if data.context_type == "Documents":
+            pdf_content = buscar_fragmentos_relevantes(
+                question, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
+            )
+            context_full = "\n".join(pdf_content)
+            print(f" Contexto Documentos: {context_full}")
+
+        elif data.context_type == "Proccess":
+            proceso_relevante = None
+            procesos = ["create_user", "update_user", "remove_user"]
+            for proceso in procesos:
+                if proceso in question:
+                    proceso_relevante = proceso
+                    break
+            if proceso_relevante:
+                context_full = "\n".join(
+                    buscar_fragmentos_relevantes(
+                        f"proceso {proceso_relevante}", 
+                        CHROMA_MARKDOWN_COLLECTION, 
+                        category_filter="processes", 
+                        n_results=5
+                    )
+                )
+            else:
+                context_full = "se detectó un proceso relevante."
+
+        else:
+            raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")
+
+        print(f" Contexto total: {context_full}...")
+    
+        # prompt = PromptTemplate(
+
+        #     template="""  
+        #         Contexto:
+        #         {context_full}
                 
-                Pregunta:
-                {question}
+        #         Pregunta:
+        #         {data.question}
                 
-                Respuesta:
-            """, input_variables=["context", "question"]
-        )
+        #         Respuesta:
+        #     """, input_variables=["context", "question"]
 
-        retrieval = RetrievalQA.from_chain_type(
-            llm=llm,
-            retriever=retriever,
-            chain_type="stuff",
-            return_source_documents=True,
-            chain_type_kwargs={"prompt": prompt},
-        )
+        # )
+        prompt = f"""  
+        Contexto:
+        {context_full}
+
+        Pregunta:
+        {data.pregunta}
+
+        Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
+
+        """
+
+        
+
+        # retrieval = RetrievalQA.from_chain_type(
+        #     llm=llm,
+        #     # retriever=retriever,
+        #     chain_type="stuff",
+        #     return_source_documents=True,
+        #     chain_type_kwargs={"prompt": prompt},
+        # )
 
         # pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
         # result = retrieval.invoke({"query": pregunta_final})
 
         # return result
-        respuesta_completa = retrieval.invoke({"query": data.pregunta})
-        solo_respuesta = respuesta_completa["result"]
+        # respuesta_completa = retrieval.invoke({"query": data.pregunta})
+        # solo_respuesta = respuesta_completa["result"]
         
         # --- Nuevos conteos de tokens ---
         # Tokens de la pregunta del usuario
@@ -101,23 +151,29 @@ def chat(data: Chat):
         print(f"Tokens generados por la pregunta del usuario: {question_tokens}")
         
         # Contexto recuperado de Chroma (source_documents)
-        context_docs = respuesta_completa.get("source_documents", [])
-        context_text = "\n\n".join([doc.page_content for doc in context_docs])
-        context_tokens = count_tokens(context_text)
-        print(f"Tokens en el contexto recuperado: {context_tokens}")
+        # context_docs = respuesta_completa.get("source_documents", [])
+        # context_text = "\n\n".join([doc.page_content for doc in context_docs])
+        # context_tokens = count_tokens(context_text)
+        # print(f"Tokens en el contexto recuperado: {context_tokens}")
         
-        # Prompt completo aproximado (input a Ollama)
-        prompt_text = prompt.template.format(context=context_text, question=data.pregunta)
-        input_tokens = count_tokens(prompt_text)
-        print(f"Tokens totales en el prompt input (contexto + pregunta): {input_tokens}")
+        # # Prompt completo aproximado (input a Ollama)
+        # prompt_text = prompt.template.format(context=context_text, question=data.pregunta)
+        # input_tokens = count_tokens(prompt_text)
+        # print(f"Tokens totales en el prompt input (contexto + pregunta): {input_tokens}")
         
-        # Tokens de la respuesta del chatbot
-        response_tokens = count_tokens(solo_respuesta)
-        print(f"Tokens generados por la respuesta del chatbot: {response_tokens}")
+        # # Tokens de la respuesta del chatbot
+        # response_tokens = count_tokens(solo_respuesta)
+        # print(f"Tokens generados por la respuesta del chatbot: {response_tokens}")
         
-        print(respuesta_completa)
+        # print(respuesta_completa)
 
-        return solo_respuesta
+        def generate():
+            for chunk in llm.stream(prompt):
+                if chunk.content:
+                    yield chunk.content  
+
+        # return solo_respuesta
+        return StreamingResponse(generate(), media_type="text/plain")
 
     except Exception as e:
         return {"error": str(e)}
