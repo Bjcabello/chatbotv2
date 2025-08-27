@@ -83,6 +83,13 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
 
         background_tasks.add_task(procesar_pdf_en_background, ruta_temporal, file.filename)
 
+        try:
+            leer_pdf(Path(ruta_temporal))
+            print(f"PDF {file.filename} validado correctamente.")
+        except Exception as e:
+            os.remove(ruta_temporal)
+            return {"error": str(e)}
+
         return {"mensaje": f"{file.filename} subido con éxito. "}
     except Exception as e:
         return {"error": str(e)}
@@ -94,7 +101,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
         if texto.strip():
             indexar_pdf(nombre=nombre_archivo, contenido=texto)
     except Exception as error:
-        print(f"❌ Error al procesar {nombre_archivo}: {error}")
+        print(f"Error al procesar {nombre_archivo}: {error}")
     finally:
         if os.path.exists(ruta):
             os.remove(ruta)
@@ -145,7 +152,7 @@ def chat_stream(data: Chat):
 
         print(f" Contexto total: {contexto_total[:200]}...")
 
-        # --- Construir el prompt ---
+        
         prompt = f"""
         Contexto:
         {contexto_total}

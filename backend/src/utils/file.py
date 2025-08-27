@@ -17,7 +17,8 @@ def leer_pdf(path: Path) -> str:
 
         total_pages = count_pagepdf(documents)
 
-        if total_pages > 30:
+    
+        if total_pages >= 30:
             print(f"El PDF {path.name} tiene {total_pages} páginas.")
             raise Exception("Limite permitido 30 páginas.")
 
