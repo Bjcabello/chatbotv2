@@ -7,10 +7,8 @@ from src.db.mongodb import mongo_db
 from fastapi.security import OAuth2PasswordBearer
 from src.utils.file import leer_pdf, indexar_markdowns, leer_markdown, indexar_pdf
 from langchain_ollama import OllamaLLM
-from langchain.chains.retrieval_qa.base import RetrievalQA
 from fastapi.responses import StreamingResponse
 from langchain_ollama import ChatOllama
-from langchain.prompts import PromptTemplate
 from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes, get_chroma_vectorstore
 from src.config import CHROMA_MARKDOWN_COLLECTION, CHROMA_PDF_COLLECTION
 from pathlib import Path
@@ -125,7 +123,7 @@ def chat_stream(data: Chat):
             contexto_total = "\n".join(pdf_content)
             print(f" Contexto Documentos: {contexto_total[:200]}...")
             if not contexto_total:
-                print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
+                print("No se encontraron fragmentos relevantes en los Documentos")
 
         elif data.context_type == "Procesos":
             proceso_relevante = None
