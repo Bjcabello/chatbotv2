@@ -6,7 +6,6 @@ from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes
 from pathlib import Path
 import shutil
 import os
-from src.utils.filtered_responses import detectar_tipo_pregunta
 from src.conteo_token import count_tokens
 from fastapi.responses import StreamingResponse
 from fastapi import APIRouter, HTTPException, Depends, status
