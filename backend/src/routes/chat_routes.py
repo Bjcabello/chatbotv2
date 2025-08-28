@@ -19,8 +19,6 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
     try:
         # Ruta temporal para guardar el archivo
         ruta_temporal = f"./temp_{file.filename}"
-        
-        print("")
 
         # Guardar el archivo en disco
         with open(ruta_temporal, "wb") as buffer:

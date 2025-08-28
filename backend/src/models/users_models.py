@@ -2,8 +2,6 @@
 from pydantic import BaseModel, EmailStr, Field
 import uuid 
 from datetime import datetime
-from typing import Optional
-
 
 class UserRegister(BaseModel):  # lo que envía el cliente al registrarse
     # id:  uuid.UUID # UUID para el ID
