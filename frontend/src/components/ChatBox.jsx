@@ -24,9 +24,7 @@ class ErrorBoundary extends Component {
 
 
 function ChatBox() {
-  const [usuario, setUsuario] = useState('');
-  const [dni, setDni] = useState('');
-  const [tipoUsuario, setTipoUsuario] = useState('');
+
   const [pregunta, setPregunta] = useState('');
   const [respuesta, setRespuesta] = useState('');
   const [loading, setLoading] = useState(false);
@@ -104,11 +102,6 @@ function ChatBox() {
 
   }
   const handleEnviar = async () => {
-    if (!usuario || !dni || !tipoUsuario || !pregunta) {
-      alert("completa todos los campos");
-      return;
-    }
-
     setRespuesta('');
     setLoading(true);
 
@@ -119,9 +112,6 @@ function ChatBox() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          usuario,
-          dni,
-          tipo_usuario: tipoUsuario,
           pregunta
         }),
       });
@@ -164,42 +154,6 @@ function ChatBox() {
 
         <h3 className='text-center'>ChatBot 🤖 Viadocs</h3>
         <div className='row justify-content-center mt-5'>
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>Nombre del Usuario:</label>
-            <input
-              type="text"
-              className='form-control '
-              value={usuario}
-              placeholder='Ingrese nombre'
-              style={{ width: "55%" }}
-              onChange={e => setUsuario(e.target.value)}
-            />
-          </div>
-
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>DNI:</label>
-            <input
-              type="text"
-              className='form-control'
-              value={dni}
-              placeholder='Ingrese DNI'
-              style={{ width: "55%" }}
-              onChange={e => setDni(e.target.value)}
-            />
-          </div>
-
-          <div className='col-12 col-md-4 mb-3 d-flex flex-column align-items-center'>
-            <label className='form-label fw-bold'>Tipo de Usuario:</label>
-            <select
-              className='form-control'
-              value={tipoUsuario}
-              onChange={e => setTipoUsuario(e.target.value)}
-              style={{ width: "55%" }} >
-              <option value="" disabled>escoge un rol</option>
-              <option value="admin">admin</option>
-              <option value="cliente">cliente</option>
-            </select>
-          </div>
           <div className="row m-0">
             <div className='col-12 d-flex justify-content-between align-items-between'>
               <div className='m-4'>
