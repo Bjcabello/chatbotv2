@@ -51,10 +51,19 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str, categor
     if len(find_hash["documents"]) == 0:
         chunks = dividir_en_chunks(contenido)
         documentos = [Document(page_content=chunk, metadata={"source": nombre, "hash": hash, "chunk_id": f"{hash}_chunk{i}","category": categoria}) for i, chunk in enumerate(chunks)] #lista de objetos
-    
+        # Iterar sobre la lista de documentos
+        for doc in documentos:
+            print("\nClaves y valores del diccionario metadata:")
+            # Iterar sobre el diccionario metadata de cada documento
+            for clave, valor in doc.metadata.items():
+                print(f"{clave}: {valor}")
+        
+        # print(f"printing documentos from indexar_documentos: {documentos}")
+        # document_moddate = documentos(['moddate'])
+        # print(f"el moddate de documento: {document_moddate}")
         import time
         start_time = time.time()
-        print(f"start_time: {start_time}")
+        print(f"\nstart_time: {start_time}")
     
         print(f"total chunks: {len(documentos)}")
     

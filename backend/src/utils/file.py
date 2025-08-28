@@ -14,9 +14,11 @@ def count_pages_pdf(documents: str) -> int:
 
 def leer_pdf(path: Path) -> str:
     try:
+        print(f"contenido del path subido: {path}")
+        print(f"type del path subido {type(path)}  \n")
         loader = PyMuPDFLoader(str(path))
         documents = loader.load()
-        print(f"impriminedo el documents {documents}  \n")
+        print(f"imprimiendo el documents {documents}  \n")
 
         total_pages = count_pages_pdf(documents)
 
@@ -27,6 +29,7 @@ def leer_pdf(path: Path) -> str:
         print(f"\n ---Número total de páginas: {total_pages} \n")
      
         texto = "\n".join(doc.page_content for doc in documents)
+        print(f"imprimiendo texto: {texto}")
         
         return texto.strip()
     except Exception as e:
