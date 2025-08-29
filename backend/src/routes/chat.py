@@ -13,7 +13,7 @@ from src.utils.chroma import indexar_documento, buscar_fragmentos_relevantes, ge
 from src.config import CHROMA_MARKDOWN_COLLECTION, CHROMA_PDF_COLLECTION
 from pathlib import Path
 import shutil
-import os
+import os, re
 import uuid
 import time
 from fastapi import Depends
@@ -151,10 +151,18 @@ def chat_stream(data: Chat):
         """
 
        
+        def format_response(text: str) -> str:
+            # Insertar salto de línea antes de cada número enumerado
+            formatted = re.sub(r'(\d+\.)', r'\n\1', text)
+            return formatted.strip()
+
+       
         def generate():
+            buffer = ""
             for chunk in llm.stream(prompt):
                 if chunk.content:
-                    yield chunk.content  
+                    buffer += chunk.content
+            yield format_response(buffer) 
 
         return StreamingResponse(generate(), media_type="text/plain")
 
