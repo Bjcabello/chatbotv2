@@ -152,7 +152,7 @@ def chat_stream(data: Chat):
 
        
         def format_response(text: str) -> str:
-            # Insertar salto de línea antes de cada número enumerado
+            
             formatted = re.sub(r'(\d+\.)', r'\n\1', text)
             return formatted.strip()
 

@@ -195,7 +195,7 @@ function ChatBox() {
         </div>
         <div className="d-flex flex-column mt-3">
           <label className="form-label fw-bold">Respuesta:</label>
-          <div id="respuesta-box" className="alert alert-secondary overflow-auto lh-sm text-pre-line"
+          <div id="respuesta-box" className="alert alert-secondary overflow-auto"
            style={{ height: '200px', whiteSpace: 'pre-wrap' }}>
             {respuesta || (loading ? <TitubeandoDot /> : (pregunta ? "...." : ""))}
           </div>
