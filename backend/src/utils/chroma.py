@@ -8,7 +8,7 @@ from langchain.docstore.document import Document
 from typing import Optional, List, Dict
 
 # Cargar modelo BAAI/bge-m3 como función de embeddings
-
+# hollaaaaa
 
 # Configurar embeddings con el modelo BAAI/bge-m3
 embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
