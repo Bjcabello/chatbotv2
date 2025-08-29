@@ -79,6 +79,7 @@ def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks =
         with open(ruta_temporal, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
+        
         background_tasks.add_task(procesar_pdf_en_background, ruta_temporal, file.filename)
 
         try:
@@ -97,7 +98,10 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
         texto = leer_pdf(Path(ruta))
         print(f"Texto extraído del PDF {nombre_archivo}: {texto[:200]}...")  
         if texto.strip():
-            indexar_pdf(nombre=nombre_archivo, contenido=texto)
+            
+            id_document = str(uuid.uuid4())
+            indexar_pdf(nombre=nombre_archivo, contenido=texto, id_document=id_document)
+            print(f"PDF {nombre_archivo} indexado con ID {id_document}")
     except Exception as error:
         print(f"Error al procesar {nombre_archivo}: {error}")
     finally:
@@ -109,16 +113,14 @@ def chat_stream(data: Chat):
     try:
         start_time = time.time()
 
-        
         llm = ChatOllama(model="mistral", temperature=0, streaming=True)
 
         pregunta = data.pregunta.lower()
         contexto_total = ""
 
-        
         if data.context_type == "Documentos":
             pdf_content = buscar_fragmentos_relevantes(
-            pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
+                pregunta, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
             )
             contexto_total = "\n".join(pdf_content)
             print(f" Contexto Documentos: {contexto_total[:200]}...")
@@ -127,7 +129,7 @@ def chat_stream(data: Chat):
 
         elif data.context_type == "Procesos":
             procesos_content = buscar_fragmentos_relevantes(
-            pregunta, CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3
+                pregunta, CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3
             )
             contexto_total = "\n".join(procesos_content)
             print(f" Contexto Procesos: {contexto_total[:200]}...")
@@ -139,7 +141,6 @@ def chat_stream(data: Chat):
 
         print(f" Contexto total: {contexto_total[:200]}...")
 
-        
         prompt = f"""
         Contexto:
         {contexto_total}
@@ -150,13 +151,12 @@ def chat_stream(data: Chat):
         Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
         """
 
-       
+        
         def format_response(text: str) -> str:
-            
             formatted = re.sub(r'(\d+\.)', r'\n\1', text)
             return formatted.strip()
 
-       
+        
         def generate():
             buffer = ""
             for chunk in llm.stream(prompt):

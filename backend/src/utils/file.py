@@ -47,7 +47,7 @@ def indexar_markdowns():
         except Exception as e:
             print(f"Error al indexar {archivo.name}: {e}")
 
-def indexar_pdf(nombre: str, contenido: str):
+def indexar_pdf(nombre: str, contenido: str, id_document: str):
     if contenido.strip():
         indexar_documento(nombre=nombre, contenido=contenido, collection_name=CHROMA_PDF_COLLECTION, categoria="pdf")
-        print(f"Indexado: {nombre} (pdf)")
+        print(f"Indexado: id: {id_document}, {nombre} (pdf) contenido: {contenido}...")

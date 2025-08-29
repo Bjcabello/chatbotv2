@@ -7,6 +7,7 @@ from langchain.docstore.document import Document
 from typing import Optional, List, Dict
 import hashlib
 import time
+import uuid
 
 
 embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL_NAME)
@@ -36,15 +37,30 @@ def generar_hash(texto: str) -> str:
 def indexar_documento(nombre: str, contenido: str, collection_name: str, categoria: str):
     vectorstore = get_chroma_vectorstore(collection_name)
     
+    # 👉 Generar ID único para el documento (UUID)
+    id_document = str(uuid.uuid4())
+
+    # Se mantiene el hash solo como referencia para saber si el contenido ya existe
     hash_value = generar_hash(contenido)
-    
     
     find_hash = vectorstore.get(where={"hash": hash_value})
     print(f"Buscando hash {hash_value} en {collection_name}: Encontrados {len(find_hash['documents'])} documentos")
     
     if len(find_hash["documents"]) == 0:
         chunks = dividir_en_chunks(contenido)
-        documentos = [Document(page_content=chunk, metadata={"source": nombre, "hash": hash_value, "chunk_id": f"{hash_value}_chunk{i}", "category": categoria}) for i, chunk in enumerate(chunks)]
+        documentos = [
+            Document(
+                page_content=chunk,
+                metadata={
+                    "id_document": id_document,   
+                    "source": nombre,
+                    "hash": hash_value,           
+                    "chunk_id": f"{id_document}_chunk{i}",  
+                    "category": categoria
+                }
+            )
+            for i, chunk in enumerate(chunks)
+        ]
         
         start_time = time.time()
         print(f"Total chunks: {len(documentos)} para {nombre}")
