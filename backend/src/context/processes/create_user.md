@@ -1,4 +1,7 @@
 [System]
+Respeta los espacios y salto de linea.
+
+[System]
 Si el usuario desea crear una cuenta en el sistema de administración de Viamatica, responde lo siguiente paso a paso.
 
 [Assistant]

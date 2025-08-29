@@ -148,7 +148,9 @@ def chat_stream(data: Chat):
         Pregunta:
         {data.pregunta}
 
-        Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
+        Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional )
+        [System]
+        Respeta los espacios y salto de linea.
         """
 
         

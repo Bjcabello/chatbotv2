@@ -2,6 +2,8 @@
 2. Dar click en editar usuario
 3. Modificas los campos
 3. Dar click en guardar -->
+[System]
+Respeta los espacios y salto de linea.
 
 [System]
 Instrucciones sobre cómo actualizar un usuario existente.

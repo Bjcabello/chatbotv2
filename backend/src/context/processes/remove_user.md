@@ -2,6 +2,8 @@
 2. Ir a eliminar usuario
 3. Dar click en eliminar usuario
 4. Confirmas si deseas eliminarlo -->
+[System]
+Respeta los espacios y salto de linea.
 
 [System]
 Instrucciones para eliminar un usuario del sistema.

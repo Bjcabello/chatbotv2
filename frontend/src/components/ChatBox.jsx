@@ -140,7 +140,7 @@ function ChatBox() {
   console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
     <ErrorBoundary>
-      <div className="container-fluid bg-lightmt mt-1 mb-1 bg-blue border border-3" style={{ maxWidth: '900px', padding: '20px', borderRadius: '10px' }}>
+      <div className="container-fluid bg-lightmt mt-4 mb-4 bg-blue border border-3" style={{ maxWidth: '900px', padding: '20px', borderRadius: '10px' }}>
         <div className="d-flex justify-content-end mt-0 align-items-end text-center">
           <i className="bi bi-box-arrow-in-right m-0 "
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
@@ -196,7 +196,7 @@ function ChatBox() {
         <div className="d-flex flex-column mt-3">
           <label className="form-label fw-bold">Respuesta:</label>
           <div id="respuesta-box" className="alert alert-secondary overflow-auto"
-           style={{ height: '200px', whiteSpace: 'pre-wrap' }}>
+           style={{ height: '200px', whiteSpace: 'pre-line' }}>
             {respuesta || (loading ? <TitubeandoDot /> : (pregunta ? "...." : ""))}
           </div>
         </div>
