@@ -78,28 +78,19 @@ def chat(data: Chat):
                 question, CHROMA_PDF_COLLECTION, category_filter="pdf", n_results=5
             )
             context_full = "\n".join(pdf_content)
-            print(f" Contexto Documentos: {context_full}")
+            print(f" Contexto Documentos(clave): {context_full}")
             if not context_full:
                 print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
 
         elif data.context_type == "Proccess":
-            proceso_relevante = None
-            procesos = ["create_user", "update_user", "remove_user"]
-            for proceso in procesos:
-                if proceso in question:
-                    proceso_relevante = proceso
-                    break
-            if proceso_relevante:
-                context_full = "\n".join(
-                    buscar_fragmentos_relevantes(
-                        f"proceso {proceso_relevante}", 
-                        CHROMA_MARKDOWN_COLLECTION, 
-                        category_filter="processes", 
-                        n_results=5
-                    )
-                )
-            else:
-                context_full = "se detectó un proceso relevante."
+            proccess_content = buscar_fragmentos_relevantes(
+                question, CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=5
+            )
+
+            context_full = "\n".join(proccess_content)
+            print(f" Contexto Procesos (clave): {context_full}")
+            if not context_full:
+                print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
             
 
         else:

@@ -81,6 +81,7 @@ function ChatBox() {
       const response = await fetch("http://localhost:8000/upload-pdf", {
         method: "POST",
         body: formData,
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await response.json();
@@ -102,19 +103,29 @@ function ChatBox() {
 
   }
   const handleEnviar = async () => {
+
+    if (!pregunta) {
+      alert('Completa la pregunta');
+      return;
+    }
     setRespuesta('');
     setLoading(true);
+
 
     try {
       const response = await fetch('http://localhost:8000/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          headers: { Authorization: `Bearer ${token}` },
         },
         body: JSON.stringify({
-          pregunta
+          pregunta, context_type: contextType
         }),
       });
+
+      if (!response.ok) throw new Error(`Error del servidor: ${response.status} - ${response.statusText}`);
+      console.log('ChatBox - Respuesta de /api/chat iniciada');
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
@@ -122,8 +133,12 @@ function ChatBox() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value);
-        setRespuesta(prev => prev + chunk);
+        const chunk = decoder.decode(value, { stream: true }); // ✅ decodificación streaming
+        if (chunk.trim()) {
+          console.log('ChatBox - Chunk recibido:', chunk);
+          setRespuesta((prev) => prev + chunk);
+        }
+
       }
     } catch (error) {
       setRespuesta(` Error: ${error.message}`);
@@ -175,8 +190,8 @@ function ChatBox() {
               <div className='m-5'>
                 <label htmlFor="contextType" className="form-label fw-bold">Tipo de Contexto:</label>
                 <select className="form-select" aria-label="Default select example" value={contextType} onChange={(e) => setContextType(e.target.value)}>
-                  <option value="Documentos">Documentos(PDFS)</option>
-                  <option value="Procesos">Procesos</option>
+                  <option value="Documents">Documentos(PDFS)</option>
+                  <option value="Proccess">Procesos</option>
                 </select>
               </div>
             </div>
