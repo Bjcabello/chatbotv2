@@ -1,4 +1,6 @@
 from pathlib import Path
+from dotenv import load_dotenv
+
 
 BASE_DIR = Path(__file__).resolve().parent
 BASE_CONTEXT = BASE_DIR / "context" / "base"
@@ -20,3 +22,14 @@ CHROMA_COLLECTION_MD = "documentos_md"
 LIMIT_PAGE_PDF = 30
 CHROMA_MARKDOWN_COLLECTION = "markdown_index"  
 CHROMA_PDF_COLLECTION = "pdf_index"  
+
+# from decouple import config
+# import os
+# load_dotenv()
+
+# MONGO_URI = os.getenv('MONGO_URI')
+# MONGO_DB_NAME = os.getenv('MONGO_DB_NAME')
+# MONGO_COLLECTION_NAME = os.getenv('MONGO_COLLECTION_NAME')
+# JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+# DEFAULT_USERNAME = os.getenv('DEFAULT_USERNAME')
+# DEFAULT_PASSWORD = os.getenv('DEFAULT_PASSWORD')

@@ -131,7 +131,7 @@ def login(payload: UserLogin):
         # user_name=str(user["user_name"]),
         user_id = user_id,
         email=str(user["email"]),
-        minutes=40,
+        minutes=60,
     )
     # user = users.find_one({"user_name": payload.user_name})
 

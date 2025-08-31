@@ -141,6 +141,7 @@ def chat(data: Chat):
         
         # --- Nuevos conteos de tokens ---
         # Tokens de la pregunta del usuario
+        print(f"--- ---- --- pregunta hecha por el usuario: {data.pregunta}\n")
         question_tokens = count_tokens(data.pregunta)
         print(f"Tokens generados por la pregunta del usuario: {question_tokens}")
         
