@@ -10,9 +10,18 @@ from src.models.users_models import UserRegister, UserLogin, ApiKeyPublic
 from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
 from src.security.hashing import hash_password, verify_password, hash_apikey
 from src.security.jwt import create_access_token, decode_access_token
+from fastapi.security import APIKeyHeader
+from passlib.context import CryptContext
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login")  # para Swagger
+
+def generate_api_key():
+    return secrets.token_hex(32)  # 64 caracteres, seguro
+
+# API Key header
+api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=False)
+
 
 # ----------------- helpers -----------------
 
@@ -71,10 +80,12 @@ def _get_collections():
 def register(payload: UserRegister):
     _, users, _ = _get_collections()
 
-    user_id = uuid.uuid4()
-    print(f"id de user generado en endpoint de register:{user_id}")
+    # user_id = uuid.uuid4()
+    # print(f"id de user generado en endpoint de register:{user_id}")
+    
 
     if users.find_one({"email": payload.email}):
+       
         raise HTTPException(status_code=409, detail="Ese email ya está registrado")
 
     user_doc = {
@@ -82,8 +93,13 @@ def register(payload: UserRegister):
         "email": payload.email,
         "password": hash_password(payload.password),  # hash
         "createdAt": datetime.now(timezone.utc),
+     
     }
-    users.insert_one(user_doc)
+    result = users.insert_one(user_doc)
+
+    # Get the inserted user ID as a string
+    user_id = str(result.inserted_id)
+    print(f"ID de usuario generado en MongoDB (Register) : {user_id}")
 
     # Crear la API key del usuario y retornarla aparte (opcional)
     # Si quieres mostrarla aquí, puedes devolverla en otro campo
@@ -94,6 +110,7 @@ def register(payload: UserRegister):
         "email ": payload.email,
         "password": payload.password,
         # "id": str(result.inserted_id),     # devolvemos el id como string
+        # "user_id" : str(payload["_id"])
     }
 
 
@@ -117,7 +134,7 @@ def login(payload: UserLogin):
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
     
     user_id = str(user["_id"])   # ← obtenemos el id real como string
-    print(f"id de usuario by mongo: {user_id}")
+    print(f"id de usuario by mongo (Login): {user_id}")
 
     # users.find_one({"id": payload.user_name})
 
@@ -140,21 +157,7 @@ def login(payload: UserLogin):
     print(f"token imprimido: {token}")
     decode_token = decode_access_token(token)
     print(f"token descomprimido: {decode_token}")
-    # Decodificar sin verificar exp (para leerlo)
-    # exp_time = datetime.datetime.fromtimestamp(decode_token["exp"], tz=datetime.timezone.utc)
-    # # --- Contador en vivo ---
-    # while True:
-    #     now = datetime.datetime.now(datetime.timezone.utc)
-    #     remaining = exp_time - now
     
-    #     if remaining.total_seconds() <= 0:
-    #         print("⛔ El token ha expirado.")
-    #         break
-
-    #     print(f"⏳ El token expira en: {int(remaining.total_seconds())} segundos.")
-    #     time.sleep(1)
-    
-    # print(f"el nombre del usuario encontrado: {user}\n")
     return {"access_token": token, "token_type": "bearer"}
 
 

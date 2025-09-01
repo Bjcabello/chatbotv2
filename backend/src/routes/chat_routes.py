@@ -119,6 +119,8 @@ def chat(data: Chat):
         {data.pregunta}
 
         Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
+        [System]
+        te llamas chatVMT, usa emojis para responder las preguntas
 
         """
 
