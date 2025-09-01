@@ -12,6 +12,12 @@ from src.security.hashing import hash_password, verify_password, hash_apikey
 from src.security.jwt import create_access_token, decode_access_token
 from fastapi.security import APIKeyHeader
 from passlib.context import CryptContext
+from datetime import datetime, timedelta
+
+
+db, users = connect_to_mongodb()
+# apikeys = db["apikeys"]
+api_keys_collection = db["api_keys"]
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login")  # para Swagger
@@ -76,7 +82,7 @@ def _get_collections():
 # ----------------- endpoints -----------------
 
 
-@router.post("/register")
+@router.post("/register",  response_model=ApiKeyPublic)
 def register(payload: UserRegister):
     _, users, _ = _get_collections()
 
@@ -100,6 +106,22 @@ def register(payload: UserRegister):
     # Get the inserted user ID as a string
     user_id = str(result.inserted_id)
     print(f"ID de usuario generado en MongoDB (Register) : {user_id}")
+    
+    # Crear API Key
+    
+ 
+    api_key = generate_api_key()
+    expires_at = datetime.now() + timedelta(minutes=5)  # Expira en 1 año
+    key_data = {
+        "key": api_key,
+        "user_id": user_id,
+        "created_at": datetime.now(),
+        "expires_at": expires_at,
+        "is_active": True
+    }
+    api_keys_collection.insert_one(key_data)
+    
+    print(f"contenido de key data (register): {key_data}")
 
     # Crear la API key del usuario y retornarla aparte (opcional)
     # Si quieres mostrarla aquí, puedes devolverla en otro campo
@@ -109,6 +131,9 @@ def register(payload: UserRegister):
         "username ": payload.user_name,
         "email ": payload.email,
         "password": payload.password,
+        #para la APIKEY 
+        "api_key": api_key, 
+        "expires_at": expires_at
         # "id": str(result.inserted_id),     # devolvemos el id como string
         # "user_id" : str(payload["_id"])
     }
@@ -120,7 +145,7 @@ def register(payload: UserRegister):
 #     return user
 
 
-@router.post("/login")
+@router.post("/login", response_model=ApiKeyPublic)
 def login(payload: UserLogin):
     print("has ingresado al endpoint de login")
     _, users, _ = _get_collections()
@@ -135,14 +160,33 @@ def login(payload: UserLogin):
     
     user_id = str(user["_id"])   # ← obtenemos el id real como string
     print(f"id de usuario by mongo (Login): {user_id}")
-
-    # users.find_one({"id": payload.user_name})
-
-    # print(f"name del usuario para el login: {payload.user_name}")
-
-    # id_usuario= users.find_one({"id": payload.id})
-    # print(f"id del usuario: {id_usuario}")
-
+    
+        # Obtener o crear API Key
+    key_data = api_keys_collection.find_one({"user_id": user["_id"], "is_active": True})
+    if not key_data or key_data["expires_at"] < datetime.now():
+        # Crear nueva si no hay o está expirada
+        api_key = generate_api_key()
+        expires_at = datetime.now() + timedelta(minutes=5)
+        key_data = {
+            "key": api_key,
+            "user_id": user["_id"],
+            "created_at": datetime.now(),
+            "expires_at": expires_at,
+            "is_active": True
+        }
+        api_keys_collection.update_one(
+            {"user_id": user["_id"], "is_active": True},
+            {"$set": {"is_active": False}},  # Desactiva keys antiguas
+            upsert=False
+        )
+        api_keys_collection.insert_one(key_data)
+        
+        print(f"contenido de key data (login): {key_data}")
+    else:
+        api_key = key_data["key"]
+        expires_at = key_data["expires_at"]
+        
+    
     token = create_access_token(
         # id_user=user_id,
         # user_name=str(user["user_name"]),
@@ -158,7 +202,10 @@ def login(payload: UserLogin):
     decode_token = decode_access_token(token)
     print(f"token descomprimido: {decode_token}")
     
-    return {"access_token": token, "token_type": "bearer"}
+    return {"access_token": token, "token_type": "bearer",
+            #para la API  KEY
+            "api_key": api_key,
+            "expires_at": expires_at}
 
 
 # @router.post("/apikey/rotate", response_model=ApiKeyPublic)
