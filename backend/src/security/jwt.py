@@ -8,7 +8,7 @@ JWT_ALGORITHM = "HS256"
 #68a7b2e5cd810dcc67564734
 
 
-def create_access_token( user_id: str, email: str,  expires_delta: timedelta = timedelta(minutes=5)) -> str:
+def create_access_token( user_id: str, email: str,  expires_delta: timedelta = timedelta(weeks=3)) -> str:
     exp = datetime.now(timezone.utc) + expires_delta
     payload = {
         # "id_user": id_user,
