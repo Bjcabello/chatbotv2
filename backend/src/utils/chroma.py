@@ -37,10 +37,10 @@ def generar_hash(texto: str) -> str:
 def indexar_documento(nombre: str, contenido: str, collection_name: str, categoria: str):
     vectorstore = get_chroma_vectorstore(collection_name)
     
-    # 👉 Generar ID único para el documento (UUID)
+    
     id_document = str(uuid.uuid4())
 
-    # Se mantiene el hash solo como referencia para saber si el contenido ya existe
+    
     hash_value = generar_hash(contenido)
     
     find_hash = vectorstore.get(where={"hash": hash_value})

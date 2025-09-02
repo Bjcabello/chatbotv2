@@ -131,15 +131,21 @@ def chat_stream(data: Chat):
             procesos_content = buscar_fragmentos_relevantes(
                 pregunta, CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=3
             )
-            contexto_total = "\n".join(procesos_content)
-            print(f" Contexto Procesos: {contexto_total[:200]}...")
-            if not contexto_total:
-                print("No se encontraron fragmentos relevantes en Procesos")
+            procesos_content_base = buscar_fragmentos_relevantes(
+                pregunta, CHROMA_MARKDOWN_COLLECTION, category_filter="base", n_results=2
+            )
+            contexto_total = "\n".join(procesos_content + procesos_content_base)
+            if not procesos_content and not procesos_content_base:
+                print("No se encontraron fragmentos relevantes en Procesos ni en Base")
+            else:
+                print(f"Contexto Procesos combinado: {contexto_total[:200]}...")
 
         else:
             raise HTTPException(status_code=400, detail="Tipo de contexto no válido. Use 'Documentos' o 'Procesos'")
 
         print(f" Contexto total: {contexto_total[:200]}...")
+
+        
 
         prompt = f"""
         Contexto:
@@ -148,11 +154,9 @@ def chat_stream(data: Chat):
         Pregunta:
         {data.pregunta}
 
-        Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional )
-        [System]
+
         Respeta los espacios y salto de linea.
         """
-
         
         def format_response(text: str) -> str:
             formatted = re.sub(r'(\d+\.)', r'\n\1', text)
