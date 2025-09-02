@@ -172,8 +172,15 @@ function ChatBox() {
             </div>
           </div>
         </div>
-        <div className="m-2">
-          <label className="form-label fw-bold">Pregunta:</label>
+       
+        <div className="d-flex flex-column mt-3">
+          <label className="form-label fw-bold">Respuesta:</label>
+          <div id="respuesta-box" className="alert alert-secondary overflow-auto"
+           style={{ height: '200px', whiteSpace: 'pre-line' }}>
+            {respuesta || (loading ? <TitubeandoDot /> : (pregunta ? "...." : ""))}
+          </div>
+        </div>
+         <div className="m-2">
           <input
             type="text"
             className="form-control"
@@ -193,13 +200,7 @@ function ChatBox() {
             {loading ? 'Cargando...' : 'Enviar'}
           </button>
         </div>
-        <div className="d-flex flex-column mt-3">
-          <label className="form-label fw-bold">Respuesta:</label>
-          <div id="respuesta-box" className="alert alert-secondary overflow-auto"
-           style={{ height: '200px', whiteSpace: 'pre-line' }}>
-            {respuesta || (loading ? <TitubeandoDot /> : (pregunta ? "...." : ""))}
-          </div>
-        </div>
+        
       </div>
     </ErrorBoundary>
   );
