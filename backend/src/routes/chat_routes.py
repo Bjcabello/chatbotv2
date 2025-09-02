@@ -83,12 +83,18 @@ def chat(data: Chat,  current_user: dict = Depends(get_current_user)):
                 print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
 
         elif data.context_type == "Proccess":
-            proccess_content = buscar_fragmentos_relevantes(
+            process_content = buscar_fragmentos_relevantes(
                 question, CHROMA_MARKDOWN_COLLECTION, category_filter="processes", n_results=5
             )
+            
+            process_content_base = buscar_fragmentos_relevantes(
+                question, CHROMA_MARKDOWN_COLLECTION, category_filter="base", n_results=5
+            )
 
-            context_full = "\n".join(proccess_content)
+            context_full = "\n".join(process_content +  process_content_base)
             print(f" Contexto Procesos (clave): {context_full}")
+            if not process_content and not process_content_base:
+                print("No se encontraron fragmentos relevantes en Procesos ni en Base")
             if not context_full:
                 print(" Advertencia: No se encontraron fragmentos relevantes en los Documentos")
             
