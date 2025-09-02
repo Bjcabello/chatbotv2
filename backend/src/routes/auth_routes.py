@@ -11,7 +11,7 @@ from src.utils.mongo_db.conexion_mongo import connect_to_mongodb
 from src.security.hashing import hash_password, verify_password, hash_apikey
 from src.security.jwt import create_access_token, decode_access_token
 from fastapi.security import APIKeyHeader
-from passlib.context import CryptContext
+# from passlib.context import CryptContext
 from datetime import datetime, timedelta
 
 
@@ -65,19 +65,20 @@ def _get_collections():
 # ----------------- dependencias -----------------
 
 
-# def get_current_user_email(token: str = Depends(oauth2)) -> str:
-#     try:
-#         payload = decode_access_token(token)
-#         print("payload decodficicado: ", payload)
-#         email: Optional[str] = payload.get("sub")
-#         if not email:
-#             raise HTTPException(status_code=401, detail="Token inválido (sin sub)")
-#         return email
-#     except jwt.ExpiredSignatureError:
-#         raise HTTPException(status_code=401, detail="Token expirado")
-#     except jwt.InvalidTokenError:
-#         raise HTTPException(status_code=401, detail="Token inválido")
-
+# Validar API Key
+async def get_current_user(api_key: str = Depends(api_key_header)):
+    if not api_key:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing API Key")
+    
+    key_data = api_keys_collection.find_one({"key": api_key, "is_active": True})
+    if not key_data or key_data["expires_at"] < datetime.now():
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid or expired API Key")
+    
+    user = users.find_one({"_id": key_data["user_id"]})
+    if not user:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User not found")
+    
+    return user
 
 # ----------------- endpoints -----------------
 

@@ -10,12 +10,12 @@ from src.conteo_token import count_tokens
 from fastapi.responses import StreamingResponse
 from fastapi import APIRouter, HTTPException, Depends, status
 from langchain_ollama import ChatOllama
-
+from src.routes.auth_routes import get_current_user
 
 router = APIRouter()
 
-@router.post("/upload-pdf")
-def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
+@router.post("/upload-pdf" )
+def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks(), current_user: dict = Depends(get_current_user)):
     try:
         # Ruta temporal para guardar el archivo
         ruta_temporal = f"./temp_{file.filename}"
@@ -56,7 +56,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
             os.remove(ruta)
 
 @router.post("/chat")
-def chat(data: Chat):
+def chat(data: Chat,  current_user: dict = Depends(get_current_user)):
     try:
         # from langchain_ollama import OllamaLLM
         # from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -168,7 +168,9 @@ def chat(data: Chat):
             for chunk in llm.stream(prompt):
                 if chunk.content:
                     yield chunk.content  
-
+                    
+        # Opcional: Log del usuario (para rastreo, sin alterar lógica)
+        print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
         # return solo_respuesta
         return StreamingResponse(generate(), media_type="text/plain")
 
