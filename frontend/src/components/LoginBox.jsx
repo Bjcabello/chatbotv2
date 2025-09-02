@@ -45,6 +45,7 @@ function LoginBox() {
 
             // Decodifica el token para obtener el user_id
             const token = data.access_token;
+            console.log(`contenido del token justo antes del incio de sesion: ${data.access_token}`)
             // Ajusta para usar access_token y user_id
             // const userId = data.user_id; // Asegúrate de que sea uuid.UUID o string
             if (token) {
