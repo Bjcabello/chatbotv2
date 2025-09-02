@@ -117,7 +117,7 @@ function ChatBox() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          headers: { Authorization: `Bearer ${token}` },
+          Authorization: `Bearer ${token}` ,
         },
         body: JSON.stringify({
           pregunta, context_type: contextType
@@ -221,7 +221,7 @@ function ChatBox() {
 
         <div className='d-flex flex-column mt-3s'>
           <label className='form-label fw-bold'>Respuesta:</label>
-          <div className='alert alert-secondary overflow-auto' style={{ height: "400px" }}>
+          <div id="respuesta-box" className='alert alert-secondary overflow-auto' style={{ height: "400px" }}>
             {respuesta}
           </div>
         </div>

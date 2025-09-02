@@ -114,7 +114,7 @@ def register(payload: UserRegister):
     
  
     api_key = generate_api_key()
-    expires_at = datetime.now() + timedelta(minutes=5)  # Expira en 1 año
+    expires_at = datetime.now() + timedelta(minutes=60)  # Expira en 1 año
     key_data = {
         "key": api_key,
         "user_id": user_id,
@@ -169,7 +169,7 @@ def login(payload: UserLogin):
     if not key_data or key_data["expires_at"] < datetime.now():
         # Crear nueva si no hay o está expirada
         api_key = generate_api_key()
-        expires_at = datetime.now() + timedelta(minutes=5)
+        expires_at = datetime.now() + timedelta(minutes=60)
         key_data = {
             "key": api_key,
             "user_id": user["_id"],
