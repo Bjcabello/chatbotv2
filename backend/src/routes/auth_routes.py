@@ -85,7 +85,7 @@ async def get_current_user(api_key: str = Depends(api_key_header)):
 # ----------------- endpoints -----------------
 
 
-@router.post("/register",  response_model=ApiKeyPublic)
+@router.post("/register")
 def register(payload: UserRegister):
     _, users, _ = _get_collections()
 
@@ -107,8 +107,9 @@ def register(payload: UserRegister):
     result = users.insert_one(user_doc)
 
     # Get the inserted user ID as a string
-    user_id = str(result.inserted_id)
+    user_id = result.inserted_id #NOT NOW
     print(f"ID de usuario generado en MongoDB (Register) : {user_id}")
+    
     
     # Crear API Key
     
@@ -116,18 +117,21 @@ def register(payload: UserRegister):
     api_key = generate_api_key()
     expires_at = datetime.now() + timedelta(minutes=60)  # Expira en 1 año
     key_data = {
-        "key": api_key,
+        "key": api_key, #genera 64 caracteres seguros
         "user_id": user_id,
+        # "user_id": result["_id"],
         "created_at": datetime.now(),
         "expires_at": expires_at,
         "is_active": True
     }
     api_keys_collection.insert_one(key_data)
     
-    print(f"contenido de key data (register): {key_data}")
+    print(f"contenido de  la api key data (register): {key_data}")
 
     # Crear la API key del usuario y retornarla aparte (opcional)
     # Si quieres mostrarla aquí, puedes devolverla en otro campo
+    longitud_api = len(api_key)
+    print(f"longitud de la api key: {longitud_api}")
 
     return {
         #Usar el _id de Mongo (como string).
@@ -148,7 +152,7 @@ def register(payload: UserRegister):
 #     return user
 
 
-@router.post("/login", response_model=ApiKeyPublic)
+@router.post("/login")
 def login(payload: UserLogin):
     print("has ingresado al endpoint de login")
     _, users, _ = _get_collections()

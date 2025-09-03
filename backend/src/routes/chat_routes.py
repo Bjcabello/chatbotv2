@@ -15,7 +15,7 @@ from src.routes.auth_routes import get_current_user
 router = APIRouter()
 
 @router.post("/upload-pdf" )
-def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks(), current_user: dict = Depends(get_current_user)):
+def upload_pdf(file: UploadFile = File(...), background_tasks: BackgroundTasks = BackgroundTasks()):
     try:
         # Ruta temporal para guardar el archivo
         ruta_temporal = f"./temp_{file.filename}"
@@ -56,7 +56,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
             os.remove(ruta)
 
 @router.post("/chat")
-def chat(data: Chat,  current_user: dict = Depends(get_current_user)):
+def chat(data: Chat):
     try:
         # from langchain_ollama import OllamaLLM
         # from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -125,8 +125,6 @@ def chat(data: Chat,  current_user: dict = Depends(get_current_user)):
         {data.pregunta}
 
         Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
-        [System]
-        te llamas chatVMT, usa emojis para responder las preguntas
 
         """
 
@@ -176,7 +174,7 @@ def chat(data: Chat,  current_user: dict = Depends(get_current_user)):
                     yield chunk.content  
                     
         # Opcional: Log del usuario (para rastreo, sin alterar lógica)
-        print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
+        # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
         # return solo_respuesta
         return StreamingResponse(generate(), media_type="text/plain")
 
