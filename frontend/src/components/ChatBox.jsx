@@ -140,7 +140,7 @@ function ChatBox() {
   console.log('ChatBox - Render, isAuthenticated:', isAuthenticated, 'Respuesta:', respuesta);
   return (
     <ErrorBoundary>
-      <div className="container-fluid bg-lightmt mt-4 mb-4 bg-blue border border-3" style={{ maxWidth: '900px', padding: '20px', borderRadius: '10px' }}>
+      <div className="container-fluid bg-lightmt mt-5 mb-5 bg-blue border border-3" style={{ maxWidth: '900px', padding: '20px', borderRadius: '10px' }}>
         <div className="d-flex justify-content-end mt-0 align-items-end text-center">
           <i className="bi bi-box-arrow-in-right m-0 "
             onClick={handleLogout} style={{ cursor: 'pointer', fontSize: '2em' }}>
@@ -180,27 +180,23 @@ function ChatBox() {
             {respuesta || (loading ? <TitubeandoDot /> : (pregunta ? "...." : ""))}
           </div>
         </div>
-         <div className="m-2">
+        <div style={{ backgroundColor: '#f0e7e7ff', padding: '10px', borderRadius: '10px', display: 'flex', alignItems: 'center', margin: '10px' }}>
           <input
             type="text"
             className="form-control"
             value={pregunta}
             placeholder="Ingrese su pregunta"
-            style={{ width: '100%' }}
+            style={{ flex: 1, backgroundColor: 'transparent', border: 'none', color: '#0d0505ff' }}
             onChange={(e) => setPregunta(e.target.value)}
           />
-        </div>
-        <div className="d-grid gap-2 d-md-flex justify-content-md-center">
-          <button
-            className="btn btn-outline-primary icon-link-hover"
-            style={{ width: '40%', height: '20%' }}
+          
+          
+          <i class="bi bi-arrow-up-circle" style={{ marginLeft: '10px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.5em' }}
             onClick={handleEnviar}
-            disabled={loading}
-          >
-            {loading ? 'Cargando...' : 'Enviar'}
-          </button>
+            disabled={loading}></i>
         </div>
-        
+
+      
       </div>
     </ErrorBoundary>
   );
