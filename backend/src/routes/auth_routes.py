@@ -100,7 +100,7 @@ def register(payload: UserRegister):
     user_doc = {
         "user_name": payload.user_name,
         "email": payload.email,
-        "password": hash_password(payload.password),  # hash
+        "password": hash_password(payload.password),  
         "createdAt": datetime.now(timezone.utc),
      
     }
@@ -117,7 +117,7 @@ def register(payload: UserRegister):
     api_key = generate_api_key()
     expires_at = datetime.now() + timedelta(minutes=60)  # Expira en 1 año
     key_data = {
-        "key": api_key, #genera 64 caracteres seguros
+        "key": api_key, #genera id 64 caracteres seguros
         "user_id": user_id,
         # "user_id": result["_id"],
         "created_at": datetime.now(),
