@@ -56,7 +56,7 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
             os.remove(ruta)
 
 @router.post("/chat")
-def chat(data: Chat, current_user = Depends(get_current_user)):
+def chat(data: Chat):
     try:
         # from langchain_ollama import OllamaLLM
         # from langchain.chains.retrieval_qa.base import RetrievalQA
@@ -129,7 +129,7 @@ def chat(data: Chat, current_user = Depends(get_current_user)):
         """
         
         # Registrar acción del usuario (opcional)
-        print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
+        # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
 
         
 
