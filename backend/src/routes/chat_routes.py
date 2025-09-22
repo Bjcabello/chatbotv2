@@ -131,7 +131,6 @@ def chat(data: Chat):
         # Registrar acción del usuario (opcional)
         # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
 
-        
 
         # retrieval = RetrievalQA.from_chain_type(
         #     llm=llm,
@@ -179,7 +178,10 @@ def chat(data: Chat):
         # Opcional: Log del usuario (para rastreo, sin alterar lógica)
         # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
         # return solo_respuesta
-        return StreamingResponse(generate(), media_type="text/plain")
+        la_respuesta = StreamingResponse(generate(), media_type="text/plain")
+        print(f"la respuesta : {la_respuesta}")
+        return la_respuesta
+    
 
     except Exception as e:
         return {"error": str(e)}
