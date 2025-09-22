@@ -188,12 +188,12 @@ def login(payload: UserLogin):
         )
         api_keys_collection.insert_one(key_data)
         
-        print(f"contenido de key data (login): {key_data}")
+      
     else:
         api_key = key_data["key"]
         expires_at = key_data["expires_at"]
         
-    
+    print(f"contenido de key data (login): {key_data}")
     token = create_access_token(
         # id_user=user_id,
         # user_name=str(user["user_name"]),
