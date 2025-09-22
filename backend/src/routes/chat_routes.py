@@ -62,11 +62,33 @@ def chat(data: Chat):
         # from langchain.chains.retrieval_qa.base import RetrievalQA
         # from langchain.prompts import PromptTemplate
 
-        llm = ChatOllama(model="mistral", temperature=0, streaming=True)
+        # llm = ChatOllama(model="mistral", temperature=0, streaming=True)
         # llm = OllamaLLM(model="gemma:2b ", temperature=0.1)
         #  Usamos la detección semántica
 
         # collection_name = detectar_tipo_pregunta(data.pregunta)
+        
+        import os
+        from dotenv import load_dotenv
+        from langchain_openai import ChatOpenAI
+        # Cargar variables de entorno desde .env
+        load_dotenv()
+
+        # Obtener la clave de OpenAI
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise HTTPException(
+                status_code=500,
+                detail="OPENAI_API_KEY no encontrada. Configura la clave en el archivo .env."
+            )
+
+        # Inicializar el modelo de OpenAI
+        llm = ChatOpenAI(
+            openai_api_key=api_key,  # Pasar la clave explícitamente
+            model="gpt-3.5-turbo",   # Modelo por defecto
+            temperature=0.1,
+            streaming=True
+        )
 
         question  = data.pregunta.lower()
         context_full = ""
@@ -153,6 +175,8 @@ def chat(data: Chat):
         question_tokens = count_tokens(data.pregunta)
         print(f"Tokens generados por la pregunta del usuario: {question_tokens}")
         
+        response_content = []
+        
         # Contexto recuperado de Chroma (source_documents)
         # context_docs = respuesta_completa.get("source_documents", [])
         # context_text = "\n\n".join([doc.page_content for doc in context_docs])
@@ -172,9 +196,14 @@ def chat(data: Chat):
 
         def generate():
             for chunk in llm.stream(prompt):
-                if chunk.content:
+                if hasattr(chunk, 'content') and chunk.content:
+                    response_content.append(chunk.content)  # Acumular fragmento
                     yield chunk.content  
-                    
+         
+        full_response = "".join(response_content)
+        print(f"\nRespuesta completa:\n{full_response}")
+        response_tokens = count_tokens(full_response)
+        print(f"Tokens generados por la respuesta del chatbot: {response_tokens}")           
         # Opcional: Log del usuario (para rastreo, sin alterar lógica)
         # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
         # return solo_respuesta
