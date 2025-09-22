@@ -76,19 +76,6 @@ def indexar_documento(nombre: str, contenido: str, collection_name: str, categor
     else:
         print("archivo almacenado en chromadb previamente")
     
-    
-# Búsqueda relevante
-# def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3, category_filter: Optional[str] = None) -> List[str]:
-#     vectorstore = get_chroma_vectorstore(collection_name)
-#     # retriever: VectorStoreRetriever = vectorstore.as_retriever(search_kwargs={"k": n_results})
-#     # documentos = retriever.invoke(pregunta)
-#     # return [doc.page_content for doc in documentos]
-#     search_kwargs = {"k": n_results}
-#     if category_filter:
-#         search_kwargs["filter"] = {"category": category_filter}
-#     retriever = vectorstore.as_retriever(search_kwargs=search_kwargs)
-#     documentos = retriever.invoke(pregunta)
-#     return [doc.page_content for doc in documentos]
 def buscar_fragmentos_relevantes(pregunta: str, collection_name: str, n_results: int = 3, category_filter: Optional[str] = None) -> List[str]:
     vectorstore = get_chroma_vectorstore(collection_name)
     search_kwargs = {"k": n_results}

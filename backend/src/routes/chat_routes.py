@@ -58,15 +58,6 @@ def procesar_pdf_en_background(ruta: str, nombre_archivo: str):
 @router.post("/chat")
 def chat(data: Chat):
     try:
-        # from langchain_ollama import OllamaLLM
-        # from langchain.chains.retrieval_qa.base import RetrievalQA
-        # from langchain.prompts import PromptTemplate
-
-        # llm = ChatOllama(model="mistral", temperature=0, streaming=True)
-        # llm = OllamaLLM(model="gemma:2b ", temperature=0.1)
-        #  Usamos la detección semántica
-
-        # collection_name = detectar_tipo_pregunta(data.pregunta)
         
         import os
         from dotenv import load_dotenv
@@ -126,19 +117,6 @@ def chat(data: Chat):
 
         print(f" Contexto total: {context_full}...")
     
-        # prompt = PromptTemplate(
-
-        #     template="""  
-        #         Contexto:
-        #         {context_full}
-                
-        #         Pregunta:
-        #         {data.question}
-                
-        #         Respuesta:
-        #     """, input_variables=["context", "question"]
-
-        # )
         prompt = f"""  
         Contexto:
         {context_full}
@@ -149,50 +127,12 @@ def chat(data: Chat):
         Respuesta: (Inicia con 'Estimado(a),' y usa un tono amable y profesional)
 
         """
-        
-        # Registrar acción del usuario (opcional)
-        # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
-
-
-        # retrieval = RetrievalQA.from_chain_type(
-        #     llm=llm,
-        #     # retriever=retriever,
-        #     chain_type="stuff",
-        #     return_source_documents=True,
-        #     chain_type_kwargs={"prompt": prompt},
-        # )
-
-        # pregunta_final = f"{contexto_base}\n\n{data.pregunta}"
-        # result = retrieval.invoke({"query": pregunta_final})
-
-        # return result
-        # respuesta_completa = retrieval.invoke({"query": data.pregunta})
-        # solo_respuesta = respuesta_completa["result"]
-        
-        # --- Nuevos conteos de tokens ---
-        # Tokens de la pregunta del usuario
         print(f"--- ---- --- pregunta hecha por el usuario: {data.pregunta}\n")
         question_tokens = count_tokens(data.pregunta)
         print(f"Tokens generados por la pregunta del usuario: {question_tokens}")
         
         response_content = []
-        
-        # Contexto recuperado de Chroma (source_documents)
-        # context_docs = respuesta_completa.get("source_documents", [])
-        # context_text = "\n\n".join([doc.page_content for doc in context_docs])
-        # context_tokens = count_tokens(context_text)
-        # print(f"Tokens en el contexto recuperado: {context_tokens}")
-        
-        # # Prompt completo aproximado (input a Ollama)
-        # prompt_text = prompt.template.format(context=context_text, question=data.pregunta)
-        # input_tokens = count_tokens(prompt_text)
-        # print(f"Tokens totales en el prompt input (contexto + pregunta): {input_tokens}")
-        
-        # # Tokens de la respuesta del chatbot
-        # response_tokens = count_tokens(solo_respuesta)
-        # print(f"Tokens generados por la respuesta del chatbot: {response_tokens}")
-        
-        # print(respuesta_completa)
+
 
         def generate():
             for chunk in llm.stream(prompt):
@@ -204,9 +144,7 @@ def chat(data: Chat):
         print(f"\nRespuesta completa:\n{full_response}")
         response_tokens = count_tokens(full_response)
         print(f"Tokens generados por la respuesta del chatbot: {response_tokens}")           
-        # Opcional: Log del usuario (para rastreo, sin alterar lógica)
-        # print(f"Chat request from user: {current_user['user_name']} (email: {current_user['email']})")
-        # return solo_respuesta
+
         la_respuesta = StreamingResponse(generate(), media_type="text/plain")
         print(f"la respuesta : {la_respuesta}")
         return la_respuesta
